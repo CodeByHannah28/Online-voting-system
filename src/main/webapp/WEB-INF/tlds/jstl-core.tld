@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN" "http://java.sun.com/dtd/taglib_1_2.dtd">
+<taglib>
+  <tlib-version>1.2</tlib-version>
+  <jsp-version>2.0</jsp-version>
+  <short-name>c</short-name>
+  <uri>http://java.sun.com/jsp/jstl/core</uri>
+  <display-name>JSTL Core (placeholder)</display-name>
+
+  <!-- Minimal placeholder tag so the TLD validates. This is only for IDE/JSP validator. -->
+  <tag>
+    <name>forEach</name>
+    <tag-class>org.apache.taglibs.standard.tag.rt.core.ForEachTag</tag-class>
+    <body-content>JSP</body-content>
+  </tag>
+</taglib>

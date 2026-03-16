@@ -1,56 +1,128 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
-         https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
-         version="6.0">
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd" version="6.0">
+  <display-name>Online Voting System</display-name>
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+  <error-page>
+    <error-code>400</error-code>
+    <location>/WEB-INF/views/error/400.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>401</error-code>
+    <location>/WEB-INF/views/error/401.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>403</error-code>
+    <location>/WEB-INF/views/error/403.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>404</error-code>
+    <location>/WEB-INF/views/error/404.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>500</error-code>
+    <location>/WEB-INF/views/error/500.jsp</location>
+  </error-page>
+  <error-page>
+    <exception-type>java.lang.Exception</exception-type>
+    <location>/WEB-INF/views/error/database.jsp</location>
+  </error-page>
 
-    <!-- App Name -->
-    <display-name>Online Voting System</display-name>
+  <!-- Map JSTL URI to local TLD to help IDE/JSP validator resolve taglib. Placed inside jsp-config per schema -->
+  <jsp-config>
+    <taglib>
+      <taglib-uri>http://java.sun.com/jsp/jstl/core</taglib-uri>
+      <taglib-location>/WEB-INF/tlds/jstl-core.tld</taglib-location>
+    </taglib>
+  </jsp-config>
 
-    <!-- Welcome Page -->
-    <welcome-file-list>
-        <welcome-file>index.jsp</welcome-file>
-    </welcome-file-list>
+  <!-- Admin filter to restrict endpoints to admins only -->
+  <filter>
+    <filter-name>adminAuthFilter</filter-name>
+    <filter-class>com.bascode.admin.AdminAuthFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>adminAuthFilter</filter-name>
+    <url-pattern>/dashboard</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>adminAuthFilter</filter-name>
+    <url-pattern>/voters</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>adminAuthFilter</filter-name>
+    <url-pattern>/contesters</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>adminAuthFilter</filter-name>
+    <url-pattern>/pending-approvals</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>adminAuthFilter</filter-name>
+    <url-pattern>/voter-stats</url-pattern>
+  </filter-mapping>
 
- 
-    <!-- GLOBAL ERROR HANDLING -->
- 
+  <!-- Admin servlets mapped to servlet classes -->
+  <servlet>
+    <display-name>contesters</display-name>
+    <servlet-name>contesters</servlet-name>
+    <servlet-class>com.bascode.admin.ContestersServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>contesters</servlet-name>
+    <url-pattern>/contesters</url-pattern>
+  </servlet-mapping>
 
-    <!-- 400 - Bad Request -->
-    <error-page>
-        <error-code>400</error-code>
-        <location>/WEB-INF/views/error/400.jsp</location>
-    </error-page>
+  <servlet>
+    <display-name>dashboard</display-name>
+    <servlet-name>dashboard</servlet-name>
+    <servlet-class>com.bascode.admin.DashboardServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>dashboard</servlet-name>
+    <url-pattern>/dashboard</url-pattern>
+  </servlet-mapping>
 
-    <!-- 401 - Unauthorized -->
-    <error-page>
-        <error-code>401</error-code>
-        <location>/WEB-INF/views/error/401.jsp</location>
-    </error-page>
+  <servlet>
+    <display-name>pending-approvals</display-name>
+    <servlet-name>pending-approvals</servlet-name>
+    <servlet-class>com.bascode.admin.PendingApprovalsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>pending-approvals</servlet-name>
+    <url-pattern>/pending-approvals</url-pattern>
+  </servlet-mapping>
 
-    <!-- 403 - Forbidden -->
-    <error-page>
-        <error-code>403</error-code>
-        <location>/WEB-INF/views/error/403.jsp</location>
-    </error-page>
+  <servlet>
+    <display-name>voters</display-name>
+    <servlet-name>voters</servlet-name>
+    <servlet-class>com.bascode.admin.VotersServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>voters</servlet-name>
+    <url-pattern>/voters</url-pattern>
+  </servlet-mapping>
 
-    <!-- 404 - Not Found -->
-    <error-page>
-        <error-code>404</error-code>
-        <location>/WEB-INF/views/error/404.jsp</location>
-    </error-page>
+  <servlet>
+    <display-name>voter-stats</display-name>
+    <servlet-name>voter-stats</servlet-name>
+    <servlet-class>com.bascode.admin.VoterStatsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>voter-stats</servlet-name>
+    <url-pattern>/voter-stats</url-pattern>
+  </servlet-mapping>
 
-    <!-- 500 - Internal Server Error -->
-    <error-page>
-        <error-code>500</error-code>
-        <location>/WEB-INF/views/error/500.jsp</location>
-    </error-page>
-
-    <!-- Database / Hibernate / Runtime Errors -->
-    <error-page>
-        <exception-type>java.lang.Exception</exception-type>
-        <location>/WEB-INF/views/error/database.jsp</location>
-    </error-page>
+  <!-- Dev helper servlet (for local testing only) -->
+  <servlet>
+    <display-name>dev-login</display-name>
+    <servlet-name>dev-login</servlet-name>
+    <servlet-class>com.bascode.admin.DevLoginServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>dev-login</servlet-name>
+    <url-pattern>/dev-login</url-pattern>
+  </servlet-mapping>
 
 </web-app>
