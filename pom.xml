@@ -8,8 +8,8 @@
   <description>An Online voting system</description>
   
   	<properties>
-		<maven.compiler.source>21</maven.compiler.source>
-		<maven.compiler.target>21</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 		 <jakarta.version>6.0.0</jakarta.version>
         <hibernate.version>6.4.4.Final</hibernate.version>
 	</properties>
