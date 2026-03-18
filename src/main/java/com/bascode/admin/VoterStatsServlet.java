@@ -1,7 +1,7 @@
 package com.bascode.admin;
 
 import com.bascode.model.entity.Contester;
-import com.bascode.model.entity.Vote;
+
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -34,9 +34,12 @@ public class VoterStatsServlet extends HttpServlet {
 
         EntityManager em = factory.createEntityManager();
         try {
-            // Fetch contesters and compute vote counts per contester
-            TypedQuery<Contester> cQ = em.createQuery("SELECT c FROM Contester c", Contester.class);
+            // Fetch approved contesters only (for results)
+            TypedQuery<Contester> cQ = em.createQuery("SELECT c FROM Contester c WHERE c.status = com.bascode.model.enums.ContesterStatus.APPROVED ORDER BY c.position", Contester.class);
             List<Contester> contesters = cQ.getResultList();
+
+            // Position totals
+            List<Object[]> positionTotals = em.createQuery("SELECT v.contester.position, COUNT(v) FROM Vote v GROUP BY v.contester.position ORDER BY COUNT(v) DESC", Object[].class).getResultList();
 
             Map<Long, Long> counts = new HashMap<>();
             TypedQuery<Object[]> vQ = em.createQuery("SELECT v.contester.id, COUNT(v) FROM Vote v GROUP BY v.contester.id", Object[].class);
@@ -47,8 +50,12 @@ public class VoterStatsServlet extends HttpServlet {
                 counts.put(contesterId, count);
             }
 
+            Long totalVotes = em.createQuery("SELECT COUNT(v) FROM Vote v", Long.class).getSingleResult();
+
             req.setAttribute("contesters", contesters);
             req.setAttribute("voteCounts", counts);
+            req.setAttribute("positionTotals", positionTotals);
+            req.setAttribute("totalVotes", totalVotes);
             req.getRequestDispatcher("/admin/voter-stats.jsp").forward(req, resp);
         } finally {
             em.close();

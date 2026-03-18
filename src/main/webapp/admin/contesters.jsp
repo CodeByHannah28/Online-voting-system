@@ -16,11 +16,11 @@
         <i class="fas fa-vote-yea"></i> Voting Admin
     </div>
     <ul class="nav-links">
-        <li><a href="${pageContext.request.contextPath}/dashboard"><i class="fas fa-home"></i> Overview</a></li>
-        <li><a href="${pageContext.request.contextPath}/voters"><i class="fas fa-users"></i> Voters</a></li>
-        <li><a href="${pageContext.request.contextPath}/contesters" class="active"><i class="fas fa-user-tie"></i> Contesters</a></li>
-        <li><a href="${pageContext.request.contextPath}/pending-approvals"><i class="fas fa-user-check"></i> Approvals</a></li>
-        <li><a href="${pageContext.request.contextPath}/voter-stats"><i class="fas fa-chart-bar"></i> Voting Results</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/dashboard"><i class="fas fa-home"></i> Overview</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/voters"><i class="fas fa-users"></i> Voters</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/contesters" class="active"><i class="fas fa-user-tie"></i> Contesters</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/pending-approvals"><i class="fas fa-user-check"></i> Approvals</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/voter-stats"><i class="fas fa-chart-bar"></i> Voting Results</a></li>
         <li><a href="${pageContext.request.contextPath}/admin/monitor"><i class="fas fa-server"></i> System Monitor</a></li>
     </ul>
 </div>
@@ -32,7 +32,7 @@
     </div>
 
     <div class="card" style="margin-bottom: 2rem;">
-        <form action="${pageContext.request.contextPath}/contesters" method="GET" style="display: flex; gap: 1rem; align-items: center;">
+        <form action="${pageContext.request.contextPath}/admin/contesters" method="GET" style="display: flex; gap: 1rem; align-items: center;">
             <input type="text" name="search" value="${search}" placeholder="Search by name or email..." 
                    style="flex: 1; padding: 0.5rem 1rem; border-radius: 0.375rem; border: 1px solid var(--border-color);">
             
@@ -45,7 +45,7 @@
 
             <button type="submit" class="btn btn-primary">Filter</button>
             <c:if test="${not empty search or not empty statusFilter}">
-                <a href="${pageContext.request.contextPath}/contesters" class="btn" style="background: #e5e7eb; color: var(--text-main)">Clear</a>
+                <a href="${pageContext.request.contextPath}/admin/contesters" class="btn" style="background: #e5e7eb; color: var(--text-main)">Clear</a>
             </c:if>
         </form>
     </div>
@@ -67,17 +67,15 @@
                         <td><strong>${c.user.firstName} ${c.user.lastName}</strong></td>
                         <td>${c.position}</td>
                         <td>
-                            <c:choose>
-                                <c:when test="${c.status == 'APPROVED'}">
-                                    <span class="badge badge-approved">Approved</span>
-                                </c:when>
-                                <c:when test="${c.status == 'PENDING'}">
-                                    <span class="badge badge-pending">Pending</span>
-                                </c:when>
-                                <c:otherwise>
-                                    <span class="badge badge-denied">Denied</span>
-                                </c:otherwise>
-                            </c:choose>
+                            <c:if test="${c.status == 'APPROVED'}">
+                                <span class="badge badge-approved">Approved</span>
+                            </c:if>
+                            <c:if test="${c.status == 'PENDING'}">
+                                <span class="badge badge-pending">Pending</span>
+                            </c:if>
+                            <c:if test="${c.status == 'DENIED'}">
+                                <span class="badge badge-denied">Denied</span>
+                            </c:if>
                         </td>
                     </tr>
                 </c:forEach>

@@ -16,11 +16,11 @@
         <i class="fas fa-vote-yea"></i> Voting Admin
     </div>
     <ul class="nav-links">
-        <li><a href="${pageContext.request.contextPath}/dashboard" class="active"><i class="fas fa-home"></i> Overview</a></li>
-        <li><a href="${pageContext.request.contextPath}/voters"><i class="fas fa-users"></i> Voters</a></li>
-        <li><a href="${pageContext.request.contextPath}/contesters"><i class="fas fa-user-tie"></i> Contesters</a></li>
-        <li><a href="${pageContext.request.contextPath}/pending-approvals"><i class="fas fa-user-check"></i> Approvals <c:if test="${pendingApprovals > 0}"><span class="badge badge-pending" style="font-size: 10px; padding: 2px 6px; margin-left: 5px;">${pendingApprovals}</span></c:if></a></li>
-        <li><a href="${pageContext.request.contextPath}/voter-stats"><i class="fas fa-chart-bar"></i> Voting Results</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/dashboard" class="active"><i class="fas fa-home"></i> Overview</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/voters"><i class="fas fa-users"></i> Voters</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/contesters"><i class="fas fa-user-tie"></i> Contesters</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/pending-approvals"><i class="fas fa-user-check"></i> Approvals <c:if test="${pendingApprovals > 0}"><span class="badge badge-pending" style="font-size: 10px; padding: 2px 6px; margin-left: 5px;">${pendingApprovals}</span></c:if></a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/voter-stats"><i class="fas fa-chart-bar"></i> Voting Results</a></li>
         <li><a href="${pageContext.request.contextPath}/admin/monitor"><i class="fas fa-server"></i> System Monitor</a></li>
     </ul>
 </div>

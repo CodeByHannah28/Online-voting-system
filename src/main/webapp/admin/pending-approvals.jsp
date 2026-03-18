@@ -16,11 +16,11 @@
         <i class="fas fa-vote-yea"></i> Voting Admin
     </div>
     <ul class="nav-links">
-        <li><a href="${pageContext.request.contextPath}/dashboard"><i class="fas fa-home"></i> Overview</a></li>
-        <li><a href="${pageContext.request.contextPath}/voters"><i class="fas fa-users"></i> Voters</a></li>
-        <li><a href="${pageContext.request.contextPath}/contesters"><i class="fas fa-user-tie"></i> Contesters</a></li>
-        <li><a href="${pageContext.request.contextPath}/pending-approvals" class="active"><i class="fas fa-user-check"></i> Approvals</a></li>
-        <li><a href="${pageContext.request.contextPath}/voter-stats"><i class="fas fa-chart-bar"></i> Voting Results</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/dashboard"><i class="fas fa-home"></i> Overview</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/voters"><i class="fas fa-users"></i> Voters</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/contesters"><i class="fas fa-user-tie"></i> Contesters</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/pending-approvals" class="active"><i class="fas fa-user-check"></i> Approvals</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/voter-stats"><i class="fas fa-chart-bar"></i> Voting Results</a></li>
         <li><a href="${pageContext.request.contextPath}/admin/monitor"><i class="fas fa-server"></i> System Monitor</a></li>
     </ul>
 </div>
@@ -50,12 +50,12 @@
                         <td>${c.user.email}</td>
                         <td>${c.position}</td>
                         <td style="display: flex; gap: 0.5rem;">
-                            <form action="${pageContext.request.contextPath}/pending-approvals" method="POST" style="display: inline;">
+                            <form action="${pageContext.request.contextPath}/admin/pending-approvals" method="POST" style="display: inline;">
                                 <input type="hidden" name="id" value="${c.id}">
                                 <input type="hidden" name="action" value="approve">
                                 <button type="submit" class="btn btn-success" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Approve</button>
                             </form>
-                            <form action="${pageContext.request.contextPath}/pending-approvals" method="POST" style="display: inline;">
+                            <form action="${pageContext.request.contextPath}/admin/pending-approvals" method="POST" style="display: inline;">
                                 <input type="hidden" name="id" value="${c.id}">
                                 <input type="hidden" name="action" value="deny">
                                 <button type="submit" class="btn btn-danger" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Deny</button>

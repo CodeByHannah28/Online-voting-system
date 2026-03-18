@@ -16,11 +16,11 @@
         <i class="fas fa-vote-yea"></i> Voting Admin
     </div>
     <ul class="nav-links">
-        <li><a href="${pageContext.request.contextPath}/dashboard"><i class="fas fa-home"></i> Overview</a></li>
-        <li><a href="${pageContext.request.contextPath}/voters"><i class="fas fa-users"></i> Voters</a></li>
-        <li><a href="${pageContext.request.contextPath}/contesters"><i class="fas fa-user-tie"></i> Contesters</a></li>
-        <li><a href="${pageContext.request.contextPath}/pending-approvals"><i class="fas fa-user-check"></i> Approvals</a></li>
-        <li><a href="${pageContext.request.contextPath}/voter-stats"><i class="fas fa-chart-bar"></i> Voting Results</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/dashboard"><i class="fas fa-home"></i> Overview</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/voters"><i class="fas fa-users"></i> Voters</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/contesters"><i class="fas fa-user-tie"></i> Contesters</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/pending-approvals"><i class="fas fa-user-check"></i> Approvals</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/voter-stats"><i class="fas fa-chart-bar"></i> Voting Results</a></li>
         <li><a href="${pageContext.request.contextPath}/admin/monitor" class="active"><i class="fas fa-server"></i> System Monitor</a></li>
     </ul>
 </div>
@@ -36,7 +36,7 @@
             <div class="card-title">JVM Heap Used</div>
             <div class="card-value">${stats.heapUsed / 1024 / 1024} <span style="font-size: 0.875rem; color: var(--text-muted)">MB</span></div>
             <div style="background: #e5e7eb; height: 8px; border-radius: 4px; margin-top: 10px; overflow: hidden;">
-                <div style="background: var(--primary-color); height: 100%; width: ${stats.heapUsagePercent}%"></div>
+                <div style="background: var(--primary-color); height: 100%; width: ${stats.heapUsagePercent}%;"></div>
             </div>
         </div>
         <div class="card">

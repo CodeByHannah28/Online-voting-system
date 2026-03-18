@@ -16,11 +16,11 @@
         <i class="fas fa-vote-yea"></i> Voting Admin
     </div>
     <ul class="nav-links">
-        <li><a href="${pageContext.request.contextPath}/dashboard"><i class="fas fa-home"></i> Overview</a></li>
-        <li><a href="${pageContext.request.contextPath}/voters" class="active"><i class="fas fa-users"></i> Voters</a></li>
-        <li><a href="${pageContext.request.contextPath}/contesters"><i class="fas fa-user-tie"></i> Contesters</a></li>
-        <li><a href="${pageContext.request.contextPath}/pending-approvals"><i class="fas fa-user-check"></i> Approvals</a></li>
-        <li><a href="${pageContext.request.contextPath}/voter-stats"><i class="fas fa-chart-bar"></i> Voting Results</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/dashboard"><i class="fas fa-home"></i> Overview</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/voters" class="active"><i class="fas fa-users"></i> Voters</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/contesters"><i class="fas fa-user-tie"></i> Contesters</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/pending-approvals"><i class="fas fa-user-check"></i> Approvals</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/voter-stats"><i class="fas fa-chart-bar"></i> Voting Results</a></li>
         <li><a href="${pageContext.request.contextPath}/admin/monitor"><i class="fas fa-server"></i> System Monitor</a></li>
     </ul>
 </div>
@@ -32,12 +32,12 @@
     </div>
 
     <div class="card" style="margin-bottom: 2rem;">
-        <form action="${pageContext.request.contextPath}/voters" method="GET" style="display: flex; gap: 1rem;">
+        <form action="${pageContext.request.contextPath}/admin/voters" method="GET" style="display: flex; gap: 1rem;">
             <input type="text" name="search" value="${search}" placeholder="Search by name or email..." 
                    style="flex: 1; padding: 0.5rem 1rem; border-radius: 0.375rem; border: 1px solid var(--border-color);">
             <button type="submit" class="btn btn-primary">Search</button>
             <c:if test="${not empty search}">
-                <a href="${pageContext.request.contextPath}/voters" class="btn" style="background: #e5e7eb; color: var(--text-main)">Clear</a>
+                <a href="${pageContext.request.contextPath}/admin/voters" class="btn" style="background: #e5e7eb; color: var(--text-main)">Clear</a>
             </c:if>
         </form>
     </div>
@@ -63,14 +63,12 @@
                         <td>${v.birthYear}</td>
                         <td>${v.state}, ${v.country}</td>
                         <td>
-                            <c:choose>
-                                <c:when test="${v.emailVerified}">
-                                    <span class="badge badge-approved">Verified</span>
-                                </c:when>
-                                <c:otherwise>
-                                    <span class="badge badge-pending">Pending</span>
-                                </c:otherwise>
-                            </c:choose>
+                            <c:if test="${v.emailVerified}">
+                                <span class="badge badge-approved">Verified</span>
+                            </c:if>
+                            <c:if test="${not v.emailVerified}">
+                                <span class="badge badge-pending">Pending</span>
+                            </c:if>
                         </td>
                     </tr>
                 </c:forEach>

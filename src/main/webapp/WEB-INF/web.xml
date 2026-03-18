@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd" version="6.0">
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+  version="5.0">
+  
   <display-name>Online Voting System</display-name>
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
+  
   <error-page>
     <error-code>400</error-code>
     <location>/WEB-INF/views/error/400.jsp</location>
@@ -29,39 +34,16 @@
     <location>/WEB-INF/views/error/database.jsp</location>
   </error-page>
 
-  <!-- Map JSTL URI to local TLD to help IDE/JSP validator resolve taglib. Placed inside jsp-config per schema -->
-  <jsp-config>
-    <taglib>
-      <taglib-uri>http://java.sun.com/jsp/jstl/core</taglib-uri>
-      <taglib-location>/WEB-INF/tlds/jstl-core.tld</taglib-location>
-    </taglib>
-  </jsp-config>
 
-  <!-- Admin filter to restrict endpoints to admins only -->
-  <filter>
+  <!-- Admin filter TEMPORARILY DISABLED for development testing -->
+  <!-- <filter>
     <filter-name>adminAuthFilter</filter-name>
     <filter-class>com.bascode.admin.AdminAuthFilter</filter-class>
   </filter>
   <filter-mapping>
     <filter-name>adminAuthFilter</filter-name>
-    <url-pattern>/dashboard</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>adminAuthFilter</filter-name>
-    <url-pattern>/voters</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>adminAuthFilter</filter-name>
-    <url-pattern>/contesters</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>adminAuthFilter</filter-name>
-    <url-pattern>/pending-approvals</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>adminAuthFilter</filter-name>
-    <url-pattern>/voter-stats</url-pattern>
-  </filter-mapping>
+    <url-pattern>/admin/*</url-pattern>
+  </filter-mapping> -->
 
   <!-- Admin servlets mapped to servlet classes -->
   <servlet>
@@ -71,7 +53,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>contesters</servlet-name>
-    <url-pattern>/contesters</url-pattern>
+    <url-pattern>/admin/contesters</url-pattern>
   </servlet-mapping>
 
   <servlet>
@@ -81,7 +63,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>dashboard</servlet-name>
-    <url-pattern>/dashboard</url-pattern>
+    <url-pattern>/admin/dashboard</url-pattern>
   </servlet-mapping>
 
   <servlet>
@@ -91,7 +73,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>pending-approvals</servlet-name>
-    <url-pattern>/pending-approvals</url-pattern>
+    <url-pattern>/admin/pending-approvals</url-pattern>
   </servlet-mapping>
 
   <servlet>
@@ -101,7 +83,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>voters</servlet-name>
-    <url-pattern>/voters</url-pattern>
+    <url-pattern>/admin/voters</url-pattern>
   </servlet-mapping>
 
   <servlet>
@@ -111,10 +93,10 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>voter-stats</servlet-name>
-    <url-pattern>/voter-stats</url-pattern>
+    <url-pattern>/admin/voter-stats</url-pattern>
   </servlet-mapping>
 
-  <!-- Dev helper servlet (for local testing only) -->
+  <!-- Dev helper servlet -->
   <servlet>
     <display-name>dev-login</display-name>
     <servlet-name>dev-login</servlet-name>

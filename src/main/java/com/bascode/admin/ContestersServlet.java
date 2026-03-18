@@ -1,7 +1,7 @@
 package com.bascode.admin;
 
 import com.bascode.model.entity.Contester;
-import com.bascode.model.enums.ContesterStatus;
+
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;

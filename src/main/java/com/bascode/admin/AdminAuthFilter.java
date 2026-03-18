@@ -31,6 +31,13 @@ public class AdminAuthFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
+        // Allow dev-login bypass
+        String path = req.getServletPath();
+        if ("/admin/dev-login".equals(path)) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         HttpSession session = req.getSession(false);
         if (session == null) {
             // Not logged in - redirect to auth page

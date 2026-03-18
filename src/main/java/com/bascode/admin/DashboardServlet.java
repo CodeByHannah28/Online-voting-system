@@ -1,19 +1,17 @@
 package com.bascode.admin;
 
-import com.bascode.model.entity.Contester;
-import com.bascode.model.entity.User;
-import com.bascode.model.entity.Vote;
+
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.TypedQuery;
+
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
+
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collections;
+
 import java.util.List;
 
 // Minimal dashboard servlet that collects basic counts and forwards to JSP
@@ -58,5 +56,6 @@ public class DashboardServlet extends HttpServlet {
         } finally {
             em.close();
         }
+
     }
 }
