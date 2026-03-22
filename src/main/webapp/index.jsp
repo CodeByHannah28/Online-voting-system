@@ -549,9 +549,20 @@
     <li><a href="index.jsp">Home</a></li>
     <li><a href="about.jsp">About</a></li>
     <li><a href="contact.jsp">Contact</a></li>
-    <li class="nav-auth">
-       <a href="auth.jsp?mode=login" class="nav-login">Login</a>
-<a href="auth.jsp?mode=signup" class="nav-register">Register</a>
+<li class="nav-auth">
+<%
+if (session.getAttribute("userId") == null) {
+%>
+       <a href="login.jsp" class="nav-login">Login</a>
+<a href="register.jsp" class="nav-register">Register</a>
+<%
+} else {
+%>
+       <span>Welcome, <%=session.getAttribute("userName")%>!</span>
+       <a href="logout" class="nav-login">Logout</a>
+<%
+}
+%>
     </li>
 </ul>
     </nav>

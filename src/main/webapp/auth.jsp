@@ -185,66 +185,68 @@ form button:hover{
 </a>
 
 <div class="container" id="container">
+<%
+String message = (String) request.getAttribute("message");
+String error = (String) request.getAttribute("error");
+if (message != null) {
+%>
+  <div style="position:absolute;top:100px;left:50%;transform:translateX(-50%);background:#d4edda;color:#155724;padding:15px;border-radius:8px;border:1px solid #c3e6cb;">
+    <%=message%>
+  </div>
+<%
+}
+if (error != null) {
+%>
+  <div style="position:absolute;top:100px;left:50%;transform:translateX(-50%);background:#f8d7da;color:#721c24;padding:15px;border-radius:8px;border:1px solid #f5c6cb;">
+    <%=error%>
+  </div>
+<%
+}
+%>
 
     <div class="form-wrapper">
 
-        <!-- LOGIN SIDE -->
+        <!-- Simplified CTA panels linking to the new auth pages -->
         <div class="panel left">
             <h2>Welcome Back!</h2>
             <p>Already have an account?</p>
-            <button type="button" onclick="showSignup()">Sign Up</button>
+            <a href="login.jsp"><button type="button">Sign In</button></a>
         </div>
 
-        <div class="panel right">
-            <form method="post" action="login">
-                <h2>Sign In</h2>
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <button type="submit">Login</button>
-            </form>
+        <div class="panel right" style="flex-direction:column; justify-content:center;">
+            <h2>Use the Login Page</h2>
+            <p>This page is legacy. Please use the dedicated login page for full features.</p>
+            <a href="login.jsp" class="btn">Go to Login</a>
         </div>
 
-        <!-- SIGNUP SIDE -->
         <div class="panel left">
             <h2>Hello, Voter!</h2>
             <p>Don't have an account?</p>
-            <button type="button" onclick="showLogin()">Sign In</button>
+            <a href="register.jsp"><button type="button">Sign Up</button></a>
         </div>
 
-        <div class="panel right">
-            <form method="post" action="register">
-                <h2>Create Account</h2>
-                <input type="text" name="firstName" placeholder="First Name" required>
-                <input type="text" name="lastName" placeholder="Last Name" required>
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="number" name="birthYear" placeholder="Birth Year" required>
-                <input type="text" name="state" placeholder="State" required>
-                <input type="text" name="country" placeholder="Country" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
-                <button type="submit">Sign Up</button>
-            </form>
+        <div class="panel right" style="flex-direction:column; justify-content:center;">
+            <h2>Create Account</h2>
+            <p>Register using the full registration page.</p>
+            <a href="register.jsp" class="btn">Go to Register</a>
         </div>
 
-    </div>
+     </div>
 </div>
 
 <script>
-function showSignup(){
-    document.getElementById("container").classList.add("active");
-}
-
-function showLogin(){
-    document.getElementById("container").classList.remove("active");
-}
-
-/* AUTO SWITCH WHEN USING auth.jsp?mode=signup */
+// Redirect to the dedicated pages when `mode` is provided, or keep this page as an informational landing
 window.onload = function() {
     const params = new URLSearchParams(window.location.search);
     const mode = params.get("mode");
 
-    if(mode === "signup"){
-        showSignup();
+    if (mode === "signup") {
+        window.location.href = "register.jsp";
+        return;
+    }
+    if (mode === "login") {
+        window.location.href = "login.jsp";
+        return;
     }
 };
 </script>
