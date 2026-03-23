@@ -3,17 +3,10 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Enter Verification Code | Go Voter</title>
+<title>Resend Verification | Go Voter</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; font-family:Segoe UI, Arial, sans-serif; }
-body { 
-    height:100vh; 
-    display:flex; 
-    align-items:center; 
-    justify-content:center; 
-    background:url("Sign-in-up.jpeg") no-repeat center center/cover; 
-    position:relative; 
-}
+body { height:100vh; display:flex; align-items:center; justify-content:center; background:url("Sign-in-up.jpeg") no-repeat center center/cover; position:relative; }
 body::before { content:""; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.55); z-index:0; }
 .container { position:relative; z-index:1; background:#fff; padding:60px 40px; border-radius:20px; box-shadow:0 25px 70px rgba(0,0,0,0.3); max-width:400px; text-align:center; }
 h1 { color:#1e3a8a; margin-bottom:20px; font-size:28px; }
@@ -33,8 +26,8 @@ input:focus { border-color:#2563eb; outline:none; }
 <body>
 <a href="auth.jsp" class="back-btn">← Back</a>
 <div class="container">
-<h1>Verify Your Email</h1>
-<p>Enter the 6-digit verification code sent to your email address.</p>
+<h1>Resend Verification</h1>
+<p>Enter the email you used to register, and we'll send a new verification code if an account exists.</p>
 
 <%
 String message = (String) request.getAttribute("message");
@@ -50,18 +43,12 @@ if (message != null) {
 }
 %>
 
-<form method="post" action="verify-code">
-    <input type="text" name="code" placeholder="Enter verification code" maxlength="36" required autofocus>
-    <button type="submit" class="btn">Verify Code</button>
+<form method="post" action="resend-verification">
+    <input type="email" name="email" placeholder="your@email.com" maxlength="255" required autofocus>
+    <button type="submit" class="btn">Send Verification Email</button>
 </form>
 
-<div style="font-size:14px; color:#6b7280; margin-top:20px; display:flex; flex-direction:column; gap:10px; align-items:center;">
-    <form method="post" action="resend-code">
-        <input type="hidden" name="email" value="<%= request.getAttribute("unverifiedEmail") != null ? request.getAttribute("unverifiedEmail") : (session.getAttribute("verificationEmail") != null ? session.getAttribute("verificationEmail") : "") %>">
-        Didn't receive code? <button type="submit" style="background:none; border:none; color:#2563eb; cursor:pointer; font-weight:500; font-size:14px; text-decoration:underline;">Resend Code</button>
-    </form>
-    <span>Forgot your password? <a href="forgot-password.jsp" style="color:#2563eb;">Reset Password</a></span>
-</div>
+<p style="font-size:14px; color:#6b7280; margin-top:20px;">If you also need to reset your password, visit <a href="forgot-password.jsp" style="color:#2563eb;">Forgot Password</a></p>
 </div>
 
 <script>

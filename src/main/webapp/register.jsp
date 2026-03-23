@@ -19,8 +19,8 @@ body::before { content:""; position:absolute; top:0; left:0; width:100%; height:
 .container h1 { color:#1e3a8a; margin-bottom:30px; font-size:32px; }
 .container p { color:#4b5563; margin-bottom:30px; line-height:1.6; }
 form { display:flex; flex-direction:column; align-items:center; }
-input { width:100%; padding:15px; border:1px solid #ddd; border-radius:12px; font-size:16px; margin-bottom:15px; transition:border-color .3s; }
-input:focus { border-color:#2563eb; outline:none; box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
+input, select { width:100%; padding:15px; border:1px solid #ddd; border-radius:12px; font-size:16px; margin-bottom:15px; transition:border-color .3s; }
+input:focus, select:focus { border-color:#2563eb; outline:none; box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
 .btn { width:100%; padding:15px; background:#2563eb; color:white; border:none; border-radius:12px; font-size:16px; font-weight:600; cursor:pointer; transition:all .3s; margin-bottom:20px; }
 .btn:hover { background:#1e40af; transform:translateY(-1px); }
 .btn:active { transform:translateY(0); }
@@ -30,7 +30,7 @@ input:focus { border-color:#2563eb; outline:none; box-shadow:0 0 0 3px rgba(37,9
 .back-btn:hover { background:rgba(255,255,255,0.15); }
 .error { background:#f8d7da; color:#721c24; padding:15px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:20px; }
 .two-col { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.two-col input { margin-bottom:15px; }
+.two-col input, .two-col select { margin-bottom:15px; }
 @media (max-width:500px) { .two-col { grid-template-columns:1fr; } }
 </style>
 </head>
@@ -55,12 +55,68 @@ if (error != null) {
         <input type="text" name="lastName" placeholder="Last Name" required>
     </div>
     <input type="email" name="email" placeholder="Email" required>
-    <div class="two-col">
-        <input type="number" name="birthYear" placeholder="Birth Year" min="1900" max="<%=java.time.Year.now().getValue()%>" required>
-        <input type="text" name="state" placeholder="State" required>
-    </div>
-    <input type="text" name="country" placeholder="Country" required>
-    <input type="password" name="password" placeholder="Password (min 6 chars)" required>
+
+    <select name="birthYear" required>
+        <option value="">Select Birth Year</option>
+        <% 
+            int currentYear = java.time.Year.now().getValue();
+            for (int year = currentYear; year >= 1880; year--) {
+        %>
+            <option value="<%=year%>"><%=year%></option>
+        <% } %>
+    </select>
+
+    <select name="state" required>
+        <option value="">Select State</option>
+        <option>Abia</option>
+        <option>Adamawa</option>
+        <option>Akwa Ibom</option>
+        <option>Anambra</option>
+        <option>Bauchi</option>
+        <option>Bayelsa</option>
+        <option>Benue</option>
+        <option>Borno</option>
+        <option>Cross River</option>
+        <option>Delta</option>
+        <option>Ebonyi</option>
+        <option>Edo</option>
+        <option>Ekiti</option>
+        <option>Enugu</option>
+        <option>Gombe</option>
+        <option>Imo</option>
+        <option>Jigawa</option>
+        <option>Kaduna</option>
+        <option>Kano</option>
+        <option>Katsina</option>
+        <option>Kebbi</option>
+        <option>Kogi</option>
+        <option>Kwara</option>
+        <option>Lagos</option>
+        <option>Nasarawa</option>
+        <option>Niger</option>
+        <option>Ogun</option>
+        <option>Ondo</option>
+        <option>Osun</option>
+        <option>Oyo</option>
+        <option>Plateau</option>
+        <option>Rivers</option>
+        <option>Sokoto</option>
+        <option>Taraba</option>
+        <option>Yobe</option>
+        <option>Zamfara</option>
+    </select>
+
+    <select name="country" required>
+        <option value="Nigeria">Nigeria</option>
+    </select>
+
+    <select name="role" required>
+        <option value="">Select Role</option>
+        <option>Voter</option>
+        <option>Contester</option>
+    </select>
+
+    <input type="password" name="password" placeholder="Password" required>
     <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
     <button type="submit" class="btn">Create Account</button>
 </form>
@@ -69,4 +125,3 @@ if (error != null) {
 </div>
 </body>
 </html>
-

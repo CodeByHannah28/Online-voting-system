@@ -1,0 +1,14 @@
+# email.properties.template
+# Copy this to src/main/resources/email.properties for local testing (DO NOT commit real passwords).
+
+mail.smtp.host=smtp.gmail.com
+mail.smtp.port=587
+mail.smtp.auth=true
+mail.smtp.starttls.enable=true
+mail.smtp.user=youremail@gmail.com
+# mail.smtp.password=YOUR_SMTP_PASSWORD_HERE
+
+mail.from=Go Voter <youremail@gmail.com>
+
+# You can override any of the above using environment variables:
+# MAIL_SMTP_HOST, MAIL_SMTP_PORT, MAIL_SMTP_AUTH, MAIL_SMTP_STARTTLS, MAIL_SMTP_USER, MAIL_SMTP_PASSWORD, MAIL_FROM

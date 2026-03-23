@@ -68,12 +68,12 @@
             <version>0.4</version>
         </dependency>
         
-         <!-- Java Mail -->
-     <!--   <dependency>
+         <!-- Jakarta Mail (JavaMail) -->
+        <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
             <version>2.0.1</version>
-        </dependency> --> 
+        </dependency>
 
         <!-- JUnit 5 for tests -->
         <dependency>

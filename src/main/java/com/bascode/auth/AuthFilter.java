@@ -51,7 +51,14 @@ public class AuthFilter implements Filter {
             "/register.jsp",
             "/verify.jsp",
             "/verify-code.jsp",
-            "/auth.jsp"
+            "/auth.jsp",
+            "/forgot-password.jsp",
+            "/reset-password.jsp",
+            // servlet endpoints
+            "/forgot-password",
+            "/reset-password",
+            "/verify-code",
+            "/resend-code"
         };
         for (String path : publicPaths) {
             if (uri.endsWith(path)) {

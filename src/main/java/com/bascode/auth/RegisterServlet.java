@@ -12,8 +12,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.mindrot.jbcrypt.BCrypt;
 
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+
 import java.io.IOException;
-import java.util.UUID;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.Random;
 
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/register"})
 public class RegisterServlet extends HttpServlet {
@@ -27,6 +38,7 @@ public class RegisterServlet extends HttpServlet {
         String country = req.getParameter("country");
         String password = req.getParameter("password");
         String confirmPassword = req.getParameter("confirmPassword");
+        String roleParam = req.getParameter("role");
 
         // Validation
         if (firstName == null || lastName == null || email == null || birthYearStr == null || state == null || country == null
@@ -49,6 +61,28 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
+        int birthYear;
+        try {
+            birthYear = Integer.parseInt(birthYearStr);
+        } catch (NumberFormatException nfe) {
+            req.setAttribute("error", "Invalid birth year selected.");
+            req.getRequestDispatcher("/register.jsp").forward(req, resp);
+            return;
+        }
+
+        // Map role parameter to enum; default to VOTER if not provided or unrecognized
+        Role role = Role.VOTER;
+        if (roleParam != null && !roleParam.trim().isEmpty()) {
+            String rp = roleParam.trim().toUpperCase();
+            if (rp.equals("CONTESTER") || rp.equals("CONTESTANT")) {
+                role = Role.CONTESTER;
+            } else if (rp.equals("ADMIN")) {
+                role = Role.ADMIN;
+            } else {
+                role = Role.VOTER;
+            }
+        }
+
         EntityManager em = JPAUtil.getEntityManager();
         try {
             // Check if email exists
@@ -62,28 +96,33 @@ public class RegisterServlet extends HttpServlet {
                 return;
             }
 
-        } catch (NoResultException ignored) {
-            // Email available, proceed
+            // Create user
+            User user = new User();
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setEmail(email);
+            user.setBirthYear(birthYear);
+            user.setState(state);
+            user.setCountry(country);
+            user.setPasswordHash(BCrypt.hashpw(password, BCrypt.gensalt()));
+            user.setRole(role);
+            user.setEmailVerified(true);
+
+            em.getTransaction().begin();
+            em.persist(user);
+            em.getTransaction().commit();
+
+            // Redirect immediately to login with success message
+            req.setAttribute("message", "Registration successful! You can now log in.");
+            req.getRequestDispatcher("/login.jsp").forward(req, resp);
+
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            getServletContext().log("Registration failed", e);
+            req.setAttribute("error", "An error occurred during registration. Please try again later.");
+            req.getRequestDispatcher("/register.jsp").forward(req, resp);
+        } finally {
+            if (em != null && em.isOpen()) em.close();
         }
-
-        // Create user
-        User user = new User();
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setBirthYear(Integer.parseInt(birthYearStr));
-        user.setState(state);
-        user.setCountry(country);
-        user.setPasswordHash(BCrypt.hashpw(password, BCrypt.gensalt()));
-        user.setRole(Role.VOTER);
-        user.setEmailVerified(false);
-        user.setVerificationCode(UUID.randomUUID().toString());
-
-        em.getTransaction().begin();
-        em.persist(user);
-        em.getTransaction().commit();
-
-        // For dev: Show code in redirect
-        resp.sendRedirect("verify.jsp?code=" + user.getVerificationCode());
     }
 }

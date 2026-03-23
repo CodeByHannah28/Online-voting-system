@@ -60,6 +60,8 @@ if (error != null) {
     <button type="submit" class="btn">Sign In</button>
 </form>
 
+<p style="margin-top:12px;"><a href="forgot-password.jsp" class="link">Forgot password?</a></p>
+
 <p style="margin-top:25px;">Don't have an account? <a href="register.jsp" class="link">Sign up</a></p>
 </div>
 </body>

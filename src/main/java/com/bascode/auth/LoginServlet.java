@@ -34,11 +34,7 @@ public class LoginServlet extends HttpServlet {
                     .setParameter("email", email)
                     .getSingleResult();
             
-            if (!user.isEmailVerified()) {
-                req.setAttribute("error", "Please verify your email first.");
-                req.getRequestDispatcher("/login.jsp").forward(req, resp);
-                return;
-            }
+
 
             if (BCrypt.checkpw(password, user.getPasswordHash())) {
                 HttpSession session = req.getSession();
