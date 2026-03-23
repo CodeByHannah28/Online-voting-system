@@ -11,9 +11,11 @@
     <!-- Welcome Page -->
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
+        <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 
- 
+    <!-- Note: StatusServlet is registered via @WebServlet in its Java class to avoid duplicate mappings -->
+
     <!-- GLOBAL ERROR HANDLING -->
  
 

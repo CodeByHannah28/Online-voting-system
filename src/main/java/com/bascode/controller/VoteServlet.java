@@ -17,7 +17,7 @@ import java.io.IOException;
 
 @WebServlet("/vote")
 public class VoteServlet extends HttpServlet {
-    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("online-voting-system");
+    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("VotingPU");
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         EntityManager em = emf.createEntityManager();
