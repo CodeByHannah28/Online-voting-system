@@ -43,5 +43,4 @@ public class Vote {
 	public void setContester(Contester contester) {
 		this.contester = contester;
 	}
-
-
+}

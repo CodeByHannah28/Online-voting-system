@@ -23,6 +23,16 @@ public class ContesterService {
                 return false;
             }
 
+            // Prevent duplicate contester registration for same user & position
+            String jpqlCheck = "SELECT COUNT(c) FROM Contester c WHERE c.user.id = :uId AND c.position = :pos";
+            TypedQuery<Long> checkQuery = em.createQuery(jpqlCheck, Long.class);
+            checkQuery.setParameter("uId", userId);
+            checkQuery.setParameter("pos", position);
+            Long existing = checkQuery.getSingleResult();
+            if (existing != null && existing > 0) {
+                return false; // already registered for this position
+            }
+
             Contester newContester = new Contester();
             newContester.setUser(user); // Mapping the @OneToOne relationship I saw in your code
             newContester.setPosition(position);

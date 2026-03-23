@@ -11,10 +11,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @WebServlet("/admin/*")
 public class AdminContesterServlet extends HttpServlet {
-    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("online-voting-system");
+    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("VotingPU");
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String pathInfo = request.getPathInfo();
@@ -30,7 +32,13 @@ public class AdminContesterServlet extends HttpServlet {
         }
 
         String action = parts[1]; // approve-contester or deny-contester
-        Long contesterId = Long.parseLong(parts[2]);
+        Long contesterId = null;
+        try {
+            contesterId = Long.parseLong(parts[2]);
+        } catch (NumberFormatException nfe) {
+            response.sendRedirect("index.jsp?error=InvalidId");
+            return;
+        }
 
         ContesterStatus newStatus = null;
         if ("approve-contester".equals(action)) {
@@ -47,6 +55,7 @@ public class AdminContesterServlet extends HttpServlet {
         String result = service.handleStatusUpdate(em, contesterId, newStatus);
         em.close();
 
-        response.sendRedirect("index.jsp?msg=" + result.replace(" ", "%20"));
+        String encoded = URLEncoder.encode(result, StandardCharsets.UTF_8.toString());
+        response.sendRedirect("index.jsp?msg=" + encoded);
     }
 }

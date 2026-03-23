@@ -6,7 +6,7 @@ import com.bascode.model.enums.Position;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "contesters")
+@Table(name = "contesters", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "position"}))
 public class Contester {
 
     @Id
@@ -14,6 +14,7 @@ public class Contester {
     private Long id;
 
     @OneToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Enumerated(EnumType.STRING)

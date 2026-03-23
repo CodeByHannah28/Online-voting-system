@@ -15,11 +15,15 @@ import java.io.IOException;
 
 @WebServlet("/register-contester")
 public class ContesterRegistrationServlet extends HttpServlet {
-    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("online-voting-system");
+    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("VotingPU");
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = null;
+        try {
+            userId = (Long) session.getAttribute("userId");
+        } catch (Exception ignore) {}
+
         if (userId == null) {
             response.sendRedirect("index.jsp?error=LoginRequired");
             return;
@@ -31,7 +35,13 @@ public class ContesterRegistrationServlet extends HttpServlet {
             return;
         }
 
-        Position position = Position.valueOf(positionStr.toUpperCase());
+        Position position;
+        try {
+            position = Position.valueOf(positionStr.toUpperCase());
+        } catch (IllegalArgumentException iae) {
+            response.sendRedirect("index.jsp?error=InvalidPosition");
+            return;
+        }
 
         EntityManager em = emf.createEntityManager();
         ContesterService service = new ContesterService();
