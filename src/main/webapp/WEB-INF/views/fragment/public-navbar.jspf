@@ -1,0 +1,44 @@
+<%
+    Object publicUserObj = session.getAttribute("user");
+    com.bascode.model.entity.User publicUser =
+        publicUserObj instanceof com.bascode.model.entity.User
+            ? (com.bascode.model.entity.User) publicUserObj
+            : null;
+    String publicActive = activePage != null ? activePage : "";
+    String publicContext = request.getContextPath();
+    String publicDashboardHref = publicContext + "/voterDashboard.jsp";
+    if (publicUser != null && publicUser.getRole() != null &&
+            com.bascode.model.enums.Role.ADMIN.equals(publicUser.getRole())) {
+        publicDashboardHref = publicContext + "/admin/dashboard";
+    }
+%>
+<header class="site-topbar">
+    <div class="site-topbar__inner">
+        <a class="site-brand" href="<%= publicContext %>/index.jsp">
+            <span class="site-brand__mark">
+                <img src="${pageContext.request.contextPath}/Logo.jpeg" alt="Go Voter logo">
+            </span>
+            <span class="site-brand__text">
+                <span class="site-brand__eyebrow">Secure civic tech</span>
+                <span class="site-brand__title">Go Voter</span>
+            </span>
+        </a>
+
+        <nav class="site-nav">
+            <a class="site-nav__link <%= "home".equals(publicActive) ? "is-active" : "" %>" href="<%= publicContext %>/index.jsp">Home</a>
+            <a class="site-nav__link <%= "about".equals(publicActive) ? "is-active" : "" %>" href="<%= publicContext %>/about.jsp">About</a>
+            <a class="site-nav__link <%= "contact".equals(publicActive) ? "is-active" : "" %>" href="<%= publicContext %>/contact.jsp">Contact</a>
+        </nav>
+
+        <div class="site-topbar__actions">
+            <% if (session.getAttribute("userId") == null) { %>
+                <a class="site-button site-button--ghost" href="<%= publicContext %>/login.jsp">Login</a>
+                <a class="site-button site-button--primary" href="<%= publicContext %>/register.jsp">Create account</a>
+            <% } else { %>
+                <span class="site-user-chip"><i class="fas fa-circle-check"></i> <%= session.getAttribute("userName") != null ? session.getAttribute("userName") : "Signed in" %></span>
+                <a class="site-button site-button--primary" href="<%= publicDashboardHref %>">Open dashboard</a>
+                <a class="site-button site-button--ghost" href="<%= publicContext %>/logout">Logout</a>
+            <% } %>
+        </div>
+    </div>
+</header>

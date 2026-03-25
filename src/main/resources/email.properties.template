@@ -1,0 +1,15 @@
+# email.properties.template
+# Copy this to src/main/resources/email.properties and replace the values with your real email settings.
+
+mailtrap.api.url=https://send.api.mailtrap.io/api/send
+mailtrap.api.token=YOUR_MAILTRAP_API_TOKEN
+mailtrap.from.email=hello@onlinevoting.com
+mailtrap.from.name=Go Voter
+mailtrap.category=Verification
+
+# You can also override any of the above using environment variables:
+# MAILTRAP_API_URL
+# MAILTRAP_API_TOKEN
+# MAILTRAP_FROM_EMAIL
+# MAILTRAP_FROM_NAME
+# MAILTRAP_CATEGORY

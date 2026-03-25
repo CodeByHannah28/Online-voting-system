@@ -10,8 +10,8 @@
   	<properties>
 		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>21</maven.compiler.target>
-		 <jakarta.version>6.0.0</jakarta.version>
-        <hibernate.version>6.4.4.Final</hibernate.version>
+		<hibernate.version>6.4.4.Final</hibernate.version>
+		<junit.jupiter.version>5.9.3</junit.jupiter.version>
 	</properties>
 	
 	<dependencies>
@@ -19,7 +19,7 @@
 		   <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>6.0.0</version>
+            <version>5.0.0</version>
             <scope>provided</scope>
         </dependency>
         
@@ -27,19 +27,20 @@
          <dependency>
             <groupId>jakarta.servlet.jsp</groupId>
             <artifactId>jakarta.servlet.jsp-api</artifactId>
-            <version>3.1.1</version>
+            <version>3.0.0</version>
             <scope>provided</scope>
         </dependency>
         
         
-        <!-- JSTL -->
-          <dependency>
-            <groupId>jakarta.servlet.jsp.jstl</groupId>
-            <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
-            <version>3.0.0</version>
-        </dependency>
         
-         <!-- JPA -->
+        <!-- JSTL Implementation (includes API) -->
+        <dependency>
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+
+        <!-- JPA API (3.1.0 required for Hibernate 6.4+) -->
         <dependency>
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
@@ -67,17 +68,45 @@
             <version>0.4</version>
         </dependency>
         
-         <!-- Java Mail -->
-     <!--   <dependency>
+         <!-- Jakarta Mail (JavaMail) -->
+        <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
             <version>2.0.1</version>
-        </dependency> --> 
-	
-	</dependencies>
+        </dependency>
+
+        <!-- JUnit 5 for tests -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+    </dependencies>
 	
 	 <build>
         <finalName>online-voting-system</finalName>
+        <plugins>
+            <plugin>
+                <groupId>com.github.bdemers</groupId>
+                <artifactId>tomcat10-maven-plugin</artifactId>
+                <version>1.0.1</version>
+                <configuration>
+                    <path>/online-voting-system</path>
+                    <port>8080</port>
+                </configuration>
+            </plugin>
+            <!-- Surefire plugin for running JUnit 5 tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M7</version>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 	
 </project>

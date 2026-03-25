@@ -30,6 +30,9 @@ public class User {
     private boolean emailVerified;
     private String verificationCode;
     
+    // Password reset fields
+    private String passwordResetToken;
+    private Long resetTokenExpiry; // epoch millis
     
 	public Long getId() {
 		return id;
@@ -97,8 +100,21 @@ public class User {
 	public void setVerificationCode(String verificationCode) {
 		this.verificationCode = verificationCode;
 	}
-    
-    
-    
+
+	public String getPasswordResetToken() {
+		return passwordResetToken;
+	}
+
+	public void setPasswordResetToken(String passwordResetToken) {
+		this.passwordResetToken = passwordResetToken;
+	}
+
+	public Long getResetTokenExpiry() {
+		return resetTokenExpiry;
+	}
+
+	public void setResetTokenExpiry(Long resetTokenExpiry) {
+		this.resetTokenExpiry = resetTokenExpiry;
+	}
     
 }

@@ -1,0 +1,104 @@
+@baseUrl = http://localhost:8080/online-voting-system
+@email = restclient.{{$timestamp}}@example.com
+@password = TestPassword123!
+@verificationCode = 123456
+@resetCode = 123456
+@sessionCookie = JSESSIONID=PASTE_AFTER_LOGIN
+@adminSessionCookie = JSESSIONID=PASTE_ADMIN_COOKIE
+
+### Health check
+GET {{baseUrl}}/
+
+### Register voter
+POST {{baseUrl}}/register
+Content-Type: application/x-www-form-urlencoded
+
+firstName=Rest&lastName=Client&email={{email}}&birthYear=2000&state=Lagos&country=Nigeria&password={{password}}&confirmPassword={{password}}
+
+### Verify email with direct link
+GET {{baseUrl}}/verify?code={{verificationCode}}
+
+### Verify email with form code
+POST {{baseUrl}}/verify-code
+Content-Type: application/x-www-form-urlencoded
+
+code={{verificationCode}}
+
+### Resend verification code
+POST {{baseUrl}}/resend-code
+Content-Type: application/x-www-form-urlencoded
+
+email={{email}}
+
+### Login
+# After sending this, copy the JSESSIONID from the Set-Cookie response header
+# into @sessionCookie above before calling protected routes.
+POST {{baseUrl}}/login
+Content-Type: application/x-www-form-urlencoded
+
+email={{email}}&password={{password}}
+
+### Forgot password
+POST {{baseUrl}}/forgot-password
+Content-Type: application/x-www-form-urlencoded
+
+email={{email}}
+
+### Reset password with code from email
+POST {{baseUrl}}/reset-password
+Content-Type: application/x-www-form-urlencoded
+
+code={{resetCode}}&password={{password}}&confirmPassword={{password}}
+
+### Contact form
+POST {{baseUrl}}/contact
+Content-Type: application/x-www-form-urlencoded
+
+department=Support&organization=Go+Voter+QA&name=Rest+Client&email={{email}}&message=Testing+the+contact+endpoint+from+the+REST+Client.
+
+### Profile page
+GET {{baseUrl}}/profile
+Cookie: {{sessionCookie}}
+
+### Voter dashboard
+GET {{baseUrl}}/voterDashboard.jsp
+Cookie: {{sessionCookie}}
+
+### Candidates
+GET {{baseUrl}}/voter/candidates
+Cookie: {{sessionCookie}}
+
+### Ballot page
+GET {{baseUrl}}/voter/vote
+Cookie: {{sessionCookie}}
+
+### Results
+GET {{baseUrl}}/voter/results
+Cookie: {{sessionCookie}}
+
+### Register as contester
+POST {{baseUrl}}/voter/register-contester
+Content-Type: application/x-www-form-urlencoded
+Cookie: {{sessionCookie}}
+
+position=PRESIDENT
+
+### Admin dashboard
+GET {{baseUrl}}/admin/dashboard
+Cookie: {{adminSessionCookie}}
+
+### Admin voters
+GET {{baseUrl}}/admin/voters
+Cookie: {{adminSessionCookie}}
+
+### Admin contesters
+GET {{baseUrl}}/admin/contesters
+Cookie: {{adminSessionCookie}}
+
+### Admin pending approvals
+GET {{baseUrl}}/admin/pending-approvals
+Cookie: {{adminSessionCookie}}
+
+### Admin monitor
+GET {{baseUrl}}/admin/monitor
+Cookie: {{adminSessionCookie}}

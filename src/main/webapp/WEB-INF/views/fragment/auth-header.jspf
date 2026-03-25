@@ -1,0 +1,20 @@
+<%
+    String authContext = request.getContextPath();
+    String authView = authViewName != null ? authViewName : "";
+%>
+<header class="auth-topbar">
+    <a class="site-brand" href="<%= authContext %>/index.jsp" style="color: white;">
+        <span class="site-brand__mark">
+            <img src="${pageContext.request.contextPath}/Logo.jpeg" alt="Go Voter logo">
+        </span>
+        <span class="site-brand__text">
+            <span class="site-brand__eyebrow" style="color: rgba(248,250,252,0.62);">Secure civic tech</span>
+            <span class="site-brand__title" style="color: white;">Go Voter</span>
+        </span>
+    </a>
+    <div class="site-topbar__actions">
+        <a class="site-button site-button--light" href="<%= authContext %>/index.jsp">Home</a>
+        <a class="site-button <%= "login".equals(authView) ? "site-button--primary" : "site-button--light" %>" href="<%= authContext %>/login.jsp">Login</a>
+        <a class="site-button <%= "register".equals(authView) ? "site-button--accent" : "site-button--light" %>" href="<%= authContext %>/register.jsp">Register</a>
+    </div>
+</header>
