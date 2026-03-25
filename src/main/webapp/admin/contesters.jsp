@@ -1,91 +1,294 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"
+    import="java.net.URLEncoder,java.nio.charset.StandardCharsets,java.util.Collections,java.util.List,java.util.Map,com.bascode.model.entity.Contester,com.bascode.model.enums.ContesterStatus"%>
+<%!
+    private String h(Object value) {
+        if (value == null) {
+            return "";
+        }
+        return String.valueOf(value)
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
+
+    private String displayName(Contester contester) {
+        if (contester == null || contester.getUser() == null) {
+            return "Unnamed contester";
+        }
+        String first = contester.getUser().getFirstName() != null ? contester.getUser().getFirstName().trim() : "";
+        String last = contester.getUser().getLastName() != null ? contester.getUser().getLastName().trim() : "";
+        String fullName = (first + " " + last).trim();
+        return fullName.isEmpty() ? "Unnamed contester" : fullName;
+    }
+
+    private String positionLabel(Contester contester) {
+        if (contester == null || contester.getPosition() == null) {
+            return "Unassigned";
+        }
+        String raw = contester.getPosition().name();
+        String[] words = raw.split("_");
+        StringBuilder label = new StringBuilder();
+        for (String word : words) {
+            if (word == null || word.isBlank()) {
+                continue;
+            }
+            if (label.length() > 0) {
+                label.append(' ');
+            }
+            label.append(Character.toUpperCase(word.charAt(0)));
+            if (word.length() > 1) {
+                label.append(word.substring(1).toLowerCase());
+            }
+        }
+        return label.length() > 0 ? label.toString() : raw;
+    }
+
+    private String statusClass(ContesterStatus status) {
+        if (status == ContesterStatus.APPROVED) {
+            return "badge badge-approved";
+        }
+        if (status == ContesterStatus.PENDING) {
+            return "badge badge-pending";
+        }
+        return "badge badge-denied";
+    }
+
+    private String statusLabel(ContesterStatus status) {
+        if (status == null) {
+            return "Unknown";
+        }
+        String raw = status.name().toLowerCase();
+        return Character.toUpperCase(raw.charAt(0)) + raw.substring(1);
+    }
+
+    private boolean awaitingPosition(Contester contester) {
+        return contester == null || contester.getPosition() == null;
+    }
+
+    private String positionOptionLabel(Map<String, String> labels, Object value) {
+        if (value == null) {
+            return "Unassigned";
+        }
+        if (labels == null) {
+            return value.toString();
+        }
+        String key = value.toString();
+        String label = labels.get(key);
+        return label != null ? label : key;
+    }
+
+    private String pageHref(String contextPath, String search, String status, int page) {
+        StringBuilder href = new StringBuilder(contextPath).append("/admin/contesters?page=").append(page);
+        if (search != null && !search.isBlank()) {
+            href.append("&search=").append(URLEncoder.encode(search, StandardCharsets.UTF_8));
+        }
+        if (status != null && !status.isBlank()) {
+            href.append("&status=").append(URLEncoder.encode(status, StandardCharsets.UTF_8));
+        }
+        return href.toString();
+    }
+%>
+<%
+    String adminPageTitle = "Contesters";
+    String activeAdminSection = "contesters";
+    String selectedStatus = request.getAttribute("statusFilter") != null
+        ? request.getAttribute("statusFilter").toString()
+        : "";
+    String searchValue = request.getAttribute("search") != null
+        ? request.getAttribute("search").toString()
+        : "";
+    String pageError = request.getAttribute("pageError") != null
+        ? request.getAttribute("pageError").toString()
+        : null;
+    String pageSuccess = request.getAttribute("pageSuccess") != null
+        ? request.getAttribute("pageSuccess").toString()
+        : null;
+    @SuppressWarnings("unchecked")
+    List<Contester> contesters = request.getAttribute("contesters") instanceof List<?>
+        ? (List<Contester>) request.getAttribute("contesters")
+        : Collections.emptyList();
+    @SuppressWarnings("unchecked")
+    Map<String, String> positionLabels = request.getAttribute("positionLabels") instanceof Map<?, ?>
+        ? (Map<String, String>) request.getAttribute("positionLabels")
+        : Collections.emptyMap();
+    Object[] positions = request.getAttribute("positions") instanceof Object[]
+        ? (Object[]) request.getAttribute("positions")
+        : new Object[0];
+    int currentPage = request.getAttribute("currentPage") instanceof Number
+        ? ((Number) request.getAttribute("currentPage")).intValue()
+        : 1;
+    int totalPages = request.getAttribute("totalPages") instanceof Number
+        ? ((Number) request.getAttribute("totalPages")).intValue()
+        : 1;
+    long totalResults = request.getAttribute("totalResults") instanceof Number
+        ? ((Number) request.getAttribute("totalResults")).longValue()
+        : 0L;
+    long showingFrom = request.getAttribute("showingFrom") instanceof Number
+        ? ((Number) request.getAttribute("showingFrom")).longValue()
+        : 0L;
+    long showingTo = request.getAttribute("showingTo") instanceof Number
+        ? ((Number) request.getAttribute("showingTo")).longValue()
+        : 0L;
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contesters | Admin</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin-layout.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<%@ include file="/WEB-INF/views/fragment/admin-head.jspf" %>
 </head>
 <body>
 
-<div class="sidebar">
-    <div class="sidebar-header">
-        <i class="fas fa-vote-yea"></i> Voting Admin
-    </div>
-    <ul class="nav-links">
-        <li><a href="${pageContext.request.contextPath}/admin/dashboard"><i class="fas fa-home"></i> Overview</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/voters"><i class="fas fa-users"></i> Voters</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/contesters" class="active"><i class="fas fa-user-tie"></i> Contesters</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/pending-approvals"><i class="fas fa-user-check"></i> Approvals</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/voter-stats"><i class="fas fa-chart-bar"></i> Voting Results</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/monitor"><i class="fas fa-server"></i> System Monitor</a></li>
-    </ul>
-</div>
+<%@ include file="/WEB-INF/views/fragment/admin-sidebar.jspf" %>
 
 <div class="main-content">
-    <div class="header">
-        <h1>Contesters List</h1>
-        <p style="color: var(--text-muted)">Overview of all contesters and their current status.</p>
-    </div>
+    <div class="stack">
+        <div class="header">
+            <h1>Contesters</h1>
+            <p>Review applications by name, email, and approval status without leaving the admin workspace.</p>
+        </div>
 
-    <div class="card" style="margin-bottom: 2rem;">
-        <form action="${pageContext.request.contextPath}/admin/contesters" method="GET" style="display: flex; gap: 1rem; align-items: center;">
-            <input type="text" name="search" value="${search}" placeholder="Search by name or email..." 
-                   style="flex: 1; padding: 0.5rem 1rem; border-radius: 0.375rem; border: 1px solid var(--border-color);">
-            
-            <select name="status" style="padding: 0.5rem 1rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background: white;">
-                <option value="">All Statuses</option>
-                <option value="PENDING" ${statusFilter == 'PENDING' ? 'selected' : ''}>Pending</option>
-                <option value="APPROVED" ${statusFilter == 'APPROVED' ? 'selected' : ''}>Approved</option>
-                <option value="DENIED" ${statusFilter == 'DENIED' ? 'selected' : ''}>Denied</option>
-            </select>
+        <% if (pageError != null && !pageError.isBlank()) { %>
+            <div class="admin-alert admin-alert--warning"><strong>We hit a snag.</strong> <%= h(pageError) %></div>
+        <% } %>
+        <% if (pageSuccess != null && !pageSuccess.isBlank()) { %>
+            <div class="admin-alert admin-alert--success"><strong>Saved.</strong> <%= h(pageSuccess) %></div>
+        <% } %>
 
-            <button type="submit" class="btn btn-primary">Filter</button>
-            <c:if test="${not empty search or not empty statusFilter}">
-                <a href="${pageContext.request.contextPath}/admin/contesters" class="btn" style="background: #e5e7eb; color: var(--text-main)">Clear</a>
-            </c:if>
-        </form>
-    </div>
+        <div class="card">
+            <div class="toolbar">
+                <form action="<%= request.getContextPath() %>/admin/contesters" method="GET">
+                    <input class="admin-input" type="text" name="search" value="<%= h(searchValue) %>" placeholder="Search by name or email">
+                    <select class="admin-select" name="status">
+                        <option value="">All statuses</option>
+                        <option value="PENDING" <%= "PENDING".equals(selectedStatus) ? "selected" : "" %>>Pending</option>
+                        <option value="APPROVED" <%= "APPROVED".equals(selectedStatus) ? "selected" : "" %>>Approved</option>
+                        <option value="DENIED" <%= "DENIED".equals(selectedStatus) ? "selected" : "" %>>Denied</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Apply</button>
+                    <% if (!searchValue.isBlank() || !selectedStatus.isBlank()) { %>
+                        <a href="<%= request.getContextPath() %>/admin/contesters" class="btn btn-muted"><i class="fas fa-rotate-left"></i> Clear</a>
+                    <% } %>
+                </form>
+            </div>
+        </div>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach var="c" items="${contesters}">
+        <div class="card admin-danger-card">
+            <div class="admin-danger-form">
+                <div class="admin-danger-card__copy">
+                    <strong>Restart the election</strong>
+                    <span>Remove every contester, clear all recorded votes, and return contester accounts to voter status so a fresh election can begin.</span>
+                </div>
+                <form class="inline-form" action="<%= request.getContextPath() %>/admin/contesters" method="POST"
+                      onsubmit="return confirm('This will remove all contesters and delete all recorded votes. Continue?');">
+                    <input type="hidden" name="action" value="clear-all">
+                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash-can"></i> Clear all contesters</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="page-summary">
+            <span>Showing <strong><%= showingFrom %>-<%= showingTo %></strong> of <strong><%= totalResults %></strong> contester applications.</span>
+            <span>Page <strong><%= currentPage %></strong> of <strong><%= totalPages %></strong></span>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
-                        <td>#${c.id}</td>
-                        <td><strong>${c.user.firstName} ${c.user.lastName}</strong></td>
-                        <td>${c.position}</td>
-                        <td>
-                            <c:if test="${c.status == 'APPROVED'}">
-                                <span class="badge badge-approved">Approved</span>
-                            </c:if>
-                            <c:if test="${c.status == 'PENDING'}">
-                                <span class="badge badge-pending">Pending</span>
-                            </c:if>
-                            <c:if test="${c.status == 'DENIED'}">
-                                <span class="badge badge-denied">Denied</span>
-                            </c:if>
-                        </td>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Current Position</th>
+                        <th>Status</th>
+                        <th>Position Control</th>
                     </tr>
-                </c:forEach>
-                <c:if test="${empty contesters}">
-                    <tr>
-                        <td colspan="4" style="text-align: center; color: var(--text-muted)">No contesters found.</td>
-                    </tr>
-                </c:if>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <% if (contesters.isEmpty()) { %>
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    No contesters matched the current filters.
+                                </div>
+                            </td>
+                        </tr>
+                    <% } else {
+                        for (Contester contester : contesters) {
+                    %>
+                        <tr>
+                            <td>#<%= contester.getId() != null ? contester.getId() : 0 %></td>
+                            <td>
+                                <div class="table-cell-stack">
+                                    <strong><%= h(displayName(contester)) %></strong>
+                                    <div class="meta-note"><%= h(contester.getUser() != null ? contester.getUser().getEmail() : "") %></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="table-cell-stack">
+                                    <strong><%= h(positionLabel(contester)) %></strong>
+                                    <% if (awaitingPosition(contester)) { %>
+                                        <span class="meta-note">This application still needs a position before it can move cleanly through approvals.</span>
+                                    <% } %>
+                                </div>
+                            </td>
+                            <td>
+                                <% if (awaitingPosition(contester)) { %>
+                                    <span class="badge badge-pending">Awaiting position</span>
+                                <% } else { %>
+                                    <span class="<%= statusClass(contester.getStatus()) %>"><%= h(statusLabel(contester.getStatus())) %></span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <form class="inline-form" action="<%= request.getContextPath() %>/admin/contesters" method="POST">
+                                    <input type="hidden" name="id" value="<%= contester.getId() != null ? contester.getId() : 0 %>">
+                                    <input type="hidden" name="action" value="assign-position">
+                                    <input type="hidden" name="search" value="<%= h(searchValue) %>">
+                                    <input type="hidden" name="status" value="<%= h(selectedStatus) %>">
+                                    <input type="hidden" name="page" value="<%= currentPage %>">
+                                    <div class="table-actions table-actions--stacked">
+                                        <select class="admin-select admin-select--compact" name="position">
+                                            <% for (Object position : positions) { %>
+                                                <option value="<%= h(position) %>" <%= contester.getPosition() == position ? "selected" : "" %>>
+                                                    <%= h(positionOptionLabel(positionLabels, position)) %>
+                                                </option>
+                                            <% } %>
+                                        </select>
+                                        <button type="submit" class="btn btn-primary"><i class="fas fa-location-dot"></i> Save position</button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    <%  }
+                       } %>
+                </tbody>
+            </table>
+        </div>
+
+        <% if (totalPages > 1) { %>
+            <div class="pagination-bar">
+                <div class="meta-note">Move through the contester register without losing the current filters.</div>
+                <div class="pagination">
+                    <% if (currentPage > 1) { %>
+                        <a class="pagination__link" href="<%= h(pageHref(request.getContextPath(), searchValue, selectedStatus, currentPage - 1)) %>">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </a>
+                    <% } %>
+                    <% for (int pageNumber = 1; pageNumber <= totalPages; pageNumber++) { %>
+                        <% if (pageNumber == currentPage) { %>
+                            <span class="pagination__current"><%= pageNumber %></span>
+                        <% } else { %>
+                            <a class="pagination__link" href="<%= h(pageHref(request.getContextPath(), searchValue, selectedStatus, pageNumber)) %>"><%= pageNumber %></a>
+                        <% } %>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                        <a class="pagination__link" href="<%= h(pageHref(request.getContextPath(), searchValue, selectedStatus, currentPage + 1)) %>">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </a>
+                    <% } %>
+                </div>
+            </div>
+        <% } %>
     </div>
 </div>
 

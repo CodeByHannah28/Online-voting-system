@@ -7,7 +7,7 @@ What I changed and implemented
 - `AuthFilter` enforces authentication for protected pages and redirects unauthenticated users to `login.jsp`.
 - `register.jsp` and `login.jsp` are used for register/login flows and use the same visual style as `index.jsp`.
 
-Quick dev build & run
+Build & run
 1. Prerequisites
    - Java 21 (project uses `maven.compiler.source` 21)
    - Maven (mvn) on PATH
@@ -27,13 +27,13 @@ mvn package
 mvn com.github.bdemers:tomcat10-maven-plugin:run
 ```
 
-Manual quick test (dev flow)
+Manual quick test
 - Open `http://localhost:8080/online-voting-system/` and click Register.
-- After creating an account you'll be redirected to `verify.jsp?code=...` which displays the verification status. (In dev mode the verification code is shown in the URL/page.)
+- After creating an account, check your inbox for the verification code and complete the verification flow.
 - Click verify then login at `login.jsp`. After successful login you will be redirected to the originally requested page (if any) or `index.jsp`.
 
 Notes
-- Email sending is not configured; the verification flow stores a verification code in the DB and returns it in the redirect for manual verification.
+- Email sending must be configured through `src/main/resources/email.properties` or matching environment variables.
 - The project already depends on `org.mindrot:jbcrypt` in the `pom.xml`.
 
 If you'd like, I can:

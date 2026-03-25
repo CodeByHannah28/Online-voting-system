@@ -1,0 +1,18 @@
+<main class="site-section site-section--compact">
+    <div class="site-shell">
+        <div class="site-form-card site-error">
+            <span class="site-kicker"><i class="fas fa-triangle-exclamation"></i> System response</span>
+            <div class="site-error__code">
+                <%= errorCode %>
+            </div>
+            <h1 class="site-section__title site-error__title"><%= errorTitle %></h1>
+            <p class="site-section__text site-error__text"><%= errorMessage %></p>
+            <div class="site-hero__actions site-error__actions">
+                <a class="site-button site-button--primary" href="<%= errorActionHref %>"><%= errorActionLabel %></a>
+                <% if (errorSecondaryHref != null && errorSecondaryLabel != null) { %>
+                    <a class="site-button site-button--outline" href="<%= errorSecondaryHref %>"><%= errorSecondaryLabel %></a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</main>

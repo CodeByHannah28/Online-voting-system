@@ -26,8 +26,8 @@ public class AuthFilter implements Filter {
             return;
         }
 
-        // Check session
-        if (session != null && session.getAttribute("userId") != null) {
+        // Check session - now uses 'user' object set by Login/DevLogin
+        if (session != null && session.getAttribute("user") != null) {
             chain.doFilter(request, response);
         } else {
             // Redirect to login with original URI
@@ -43,6 +43,7 @@ public class AuthFilter implements Filter {
             "/auth.jsp",
             "/about.jsp",
             "/contact.jsp",
+            "/contact",
             "/login",
             "/register",
             "/verify",
@@ -51,6 +52,7 @@ public class AuthFilter implements Filter {
             "/register.jsp",
             "/verify.jsp",
             "/verify-code.jsp",
+            "/resend-verification.jsp",
             "/auth.jsp",
             "/forgot-password.jsp",
             "/reset-password.jsp",
@@ -58,7 +60,8 @@ public class AuthFilter implements Filter {
             "/forgot-password",
             "/reset-password",
             "/verify-code",
-            "/resend-code"
+            "/resend-code",
+            "/resend-verification"
         };
         for (String path : publicPaths) {
             if (uri.endsWith(path)) {

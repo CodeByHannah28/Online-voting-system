@@ -1,0 +1,53 @@
+<%
+    String adminContext = request.getContextPath();
+    String adminActive = activeAdminSection != null ? activeAdminSection : "";
+    String adminName = session.getAttribute("userName") != null
+        ? session.getAttribute("userName").toString()
+        : "Administrator";
+    Integer pendingCount = null;
+    Object pendingCountObj = request.getAttribute("pendingApprovals");
+    if (pendingCountObj instanceof Number) {
+        int countValue = ((Number) pendingCountObj).intValue();
+        if (countValue > 0) {
+            pendingCount = Integer.valueOf(countValue);
+        }
+    } else if (pendingCountObj == null) {
+        Object pendingItemsObj = request.getAttribute("pendingContesters");
+        if (pendingItemsObj instanceof java.util.List<?>) {
+            int countValue = ((java.util.List<?>) pendingItemsObj).size();
+            if (countValue > 0) {
+                pendingCount = Integer.valueOf(countValue);
+            }
+        }
+    }
+%>
+<div class="sidebar">
+    <div class="sidebar-header">
+        <i class="fas fa-vote-yea"></i> Voting Admin
+    </div>
+    <ul class="nav-links">
+        <li><a href="<%= adminContext %>/admin/dashboard" class="<%= "dashboard".equals(adminActive) ? "active" : "" %>"><i class="fas fa-home"></i> Overview</a></li>
+        <li><a href="<%= adminContext %>/admin/voters" class="<%= "voters".equals(adminActive) ? "active" : "" %>"><i class="fas fa-users"></i> Voters</a></li>
+        <li><a href="<%= adminContext %>/admin/contesters" class="<%= "contesters".equals(adminActive) ? "active" : "" %>"><i class="fas fa-user-tie"></i> Contesters</a></li>
+        <li>
+            <a href="<%= adminContext %>/admin/pending-approvals" class="<%= "approvals".equals(adminActive) ? "active" : "" %>">
+                <i class="fas fa-user-check"></i> Approvals
+                <% if (pendingCount != null) { %>
+                    <span class="badge badge-pending"><%= pendingCount %></span>
+                <% } %>
+            </a>
+        </li>
+        <li><a href="<%= adminContext %>/admin/voter-stats" class="<%= "results".equals(adminActive) ? "active" : "" %>"><i class="fas fa-chart-bar"></i> Voting Results</a></li>
+        <li><a href="<%= adminContext %>/admin/monitor" class="<%= "monitor".equals(adminActive) ? "active" : "" %>"><i class="fas fa-server"></i> System Monitor</a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <strong><%= adminName %></strong>
+            <span>Admin workspace</span>
+        </div>
+        <div class="sidebar-actions">
+            <a href="<%= adminContext %>/profile" class="<%= "profile".equals(adminActive) ? "active" : "" %>"><i class="fas fa-id-badge"></i> Profile</a>
+            <a href="<%= adminContext %>/logout"><i class="fas fa-right-from-bracket"></i> Logout</a>
+        </div>
+    </div>
+</div>

@@ -1,68 +1,89 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%
+    String pageTitle = "Login";
+    String authViewName = "login";
+    String error = (String) request.getAttribute("error");
+    String message = (String) request.getAttribute("message");
+    String emailValue = request.getParameter("email") != null ? request.getParameter("email") : "";
+    String redirectValue = request.getParameter("redirect") != null ? request.getParameter("redirect") : "";
+%>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Login | Go Voter</title>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:Segoe UI, Arial, sans-serif; }
-body { 
-    height:100vh; 
-    display:flex; 
-    align-items:center; 
-    justify-content:center; 
-    background:url("Sign-in-up.jpeg") no-repeat center center/cover; 
-    position:relative; 
-}
-body::before { content:""; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.55); z-index:0; }
-.container { position:relative; z-index:1; background:#fff; padding:60px 40px; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.3); max-width:400px; text-align:center; }
-.container h1 { color:#1e3a8a; margin-bottom:30px; font-size:32px; }
-.container p { color:#4b5563; margin-bottom:30px; line-height:1.6; }
-form { display:flex; flex-direction:column; align-items:center; }
-input { width:100%; padding:15px; border:1px solid #ddd; border-radius:12px; font-size:16px; margin-bottom:20px; transition:border-color .3s; }
-input:focus { border-color:#2563eb; outline:none; box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
-.btn { width:100%; padding:15px; background:#2563eb; color:white; border:none; border-radius:12px; font-size:16px; font-weight:600; cursor:pointer; transition:all .3s; }
-.btn:hover { background:#1e40af; transform:translateY(-1px); }
-.btn:active { transform:translateY(0); }
-.link { color:#2563eb; text-decoration:none; font-weight:500; }
-.link:hover { text-decoration:underline; }
-.back-btn { position:absolute; top:30px; left:40px; padding:10px 20px; background:transparent; border:1px solid rgba(255,255,255,0.6); color:white; border-radius:20px; cursor:pointer; text-decoration:none; backdrop-filter:blur(4px); font-size:14px; }
-.back-btn:hover { background:rgba(255,255,255,0.15); }
-.error { background:#f8d7da; color:#721c24; padding:15px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:20px; }
-</style>
+<%@ include file="/WEB-INF/views/fragment/site-head.jspf" %>
 </head>
-<body>
-<a href="index.jsp" class="back-btn">← Home</a>
-<div class="container">
-<h1>Sign In</h1>
-    <p>Welcome back! Please login to your account. <a href="verify-code.jsp" style="color:#2563eb;">Verify email?</a></p>
+<body class="auth-body">
+<%@ include file="/WEB-INF/views/fragment/auth-header.jspf" %>
 
-<%
-String error = (String) request.getAttribute("error");
-String message = (String) request.getAttribute("message");
-if (message != null) {
-%>
-<div class="" style="background:#d4edda;color:#155724;padding:15px;border-radius:8px;border:1px solid #c3e6cb;margin-bottom:20px;"><%=message%></div>
-<%
-}
-if (error != null) {
-%>
-<div class="error"><%=error%></div>
-<%
-}
-%>
+<main class="auth-shell">
+    <div class="auth-stage">
+        <section class="auth-aside" style="background-image: url('${pageContext.request.contextPath}/Sign-in-up.jpeg');">
+            <div class="auth-aside__content">
+                <div>
+                    <div class="auth-aside__eyebrow"><i class="fas fa-lock"></i> Secure sign in</div>
+                    <h1 class="auth-aside__title">Return to the ballot with confidence.</h1>
+                    <p class="auth-aside__text">
+                        Sign in to review candidates, cast your vote, manage your profile, and access live election results from one trusted workspace.
+                    </p>
+                </div>
+                <div class="auth-points">
+                    <div class="auth-point">
+                        <i class="fas fa-shield-halved"></i>
+                        <div>
+                            <strong>Protected access</strong>
+                            <span>Your account stays behind verified sessions and encrypted credentials.</span>
+                        </div>
+                    </div>
+                    <div class="auth-point">
+                        <i class="fas fa-chart-line"></i>
+                        <div>
+                            <strong>Live election context</strong>
+                            <span>Move straight from login into voting, results, or admin oversight depending on your role.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<form method="post" action="login">
-    <input type="email" name="email" placeholder="Email address" required autofocus>
-    <input type="password" name="password" placeholder="Password" required>
-    <!-- Preserve redirect param if present -->
-    <input type="hidden" name="redirect" value="<%= request.getParameter("redirect") != null ? request.getParameter("redirect") : "" %>">
-    <button type="submit" class="btn">Sign In</button>
-</form>
+        <section class="auth-card">
+            <div class="auth-card__eyebrow"><i class="fas fa-right-to-bracket"></i> Account access</div>
+            <h2 class="auth-card__title">Welcome back.</h2>
+            <p class="auth-card__text">
+                Sign in with the email address linked to your Go Voter account.
+            </p>
 
-<p style="margin-top:12px;"><a href="forgot-password.jsp" class="link">Forgot password?</a></p>
+            <% if (message != null) { %>
+                <div class="auth-alert auth-alert--success"><%= message %></div>
+            <% } %>
+            <% if (error != null) { %>
+                <div class="auth-alert auth-alert--error"><%= error %></div>
+            <% } %>
 
-<p style="margin-top:25px;">Don't have an account? <a href="register.jsp" class="link">Sign up</a></p>
-</div>
+            <form method="post" action="login" class="auth-form">
+                <div class="auth-field">
+                    <label for="email">Email address</label>
+                    <input id="email" class="auth-input" type="email" name="email" value="<%= emailValue %>" placeholder="you@example.com" required autofocus>
+                </div>
+                <div class="auth-field">
+                    <label for="password">Password</label>
+                    <input id="password" class="auth-input" type="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <input type="hidden" name="redirect" value="<%= redirectValue %>">
+                <div class="auth-form__footer">
+                    <div class="auth-links">
+                        <a href="forgot-password.jsp">Forgot password?</a>
+                        <a href="verify-code.jsp">Verify email</a>
+                    </div>
+                    <button type="submit" class="site-button site-button--primary">Sign in</button>
+                </div>
+            </form>
+
+            <div class="auth-note">
+                New here? <a href="register.jsp">Create your account</a> and start participating securely.
+            </div>
+        </section>
+    </div>
+</main>
+
 </body>
 </html>

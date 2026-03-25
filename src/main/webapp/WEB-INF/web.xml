@@ -35,16 +35,14 @@
   </error-page>
 
 
-  <!-- Admin filter TEMPORARILY DISABLED for development testing -->
-  <!-- <filter>
+  <filter>
     <filter-name>adminAuthFilter</filter-name>
     <filter-class>com.bascode.admin.AdminAuthFilter</filter-class>
   </filter>
   <filter-mapping>
     <filter-name>adminAuthFilter</filter-name>
     <url-pattern>/admin/*</url-pattern>
-  </filter-mapping> -->
-
+  </filter-mapping>
   <!-- Admin servlets mapped to servlet classes -->
   <servlet>
     <display-name>contesters</display-name>
@@ -95,16 +93,80 @@
     <servlet-name>voter-stats</servlet-name>
     <url-pattern>/admin/voter-stats</url-pattern>
   </servlet-mapping>
-
-  <!-- Dev helper servlet -->
   <servlet>
-    <display-name>dev-login</display-name>
-    <servlet-name>dev-login</servlet-name>
-    <servlet-class>com.bascode.admin.DevLoginServlet</servlet-class>
+    <display-name>admin-monitor</display-name>
+    <servlet-name>admin-monitor</servlet-name>
+    <servlet-class>com.bascode.admin.AdminMonitorServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>dev-login</servlet-name>
-    <url-pattern>/dev-login</url-pattern>
+    <servlet-name>admin-monitor</servlet-name>
+    <url-pattern>/admin/monitor</url-pattern>
+  </servlet-mapping>
+
+  <!-- Voter servlets -->
+  <servlet>
+    <display-name>voter-candidates</display-name>
+    <servlet-name>voter-candidates</servlet-name>
+    <servlet-class>com.bascode.voter.CandidatesServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>voter-candidates</servlet-name>
+    <url-pattern>/voter/candidates</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <display-name>voter-vote</display-name>
+    <servlet-name>voter-vote</servlet-name>
+    <servlet-class>com.bascode.voter.VoteServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>voter-vote</servlet-name>
+    <url-pattern>/voter/vote</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <display-name>voter-results</display-name>
+    <servlet-name>voter-results</servlet-name>
+    <servlet-class>com.bascode.voter.ResultsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>voter-results</servlet-name>
+    <url-pattern>/voter/results</url-pattern>
+  </servlet-mapping>
+
+
+  <!-- Profile Management servlet -->
+
+  <servlet>
+    <display-name>profile</display-name>
+    <servlet-name>profile</servlet-name>
+    <servlet-class>com.bascode.profile.ProfileServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>profile</servlet-name>
+    <url-pattern>/profile</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <display-name>contact</display-name>
+    <servlet-name>contact</servlet-name>
+    <servlet-class>com.bascode.contact.ContactServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>contact</servlet-name>
+    <url-pattern>/contact</url-pattern>
+  </servlet-mapping>
+
+
+  <!-- Contester Registration servlet -->
+  <servlet>
+    <display-name>register-contester</display-name>
+    <servlet-name>register-contester</servlet-name>
+    <servlet-class>com.bascode.voter.ContesterRegistrationServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>register-contester</servlet-name>
+    <url-pattern>/voter/register-contester</url-pattern>
   </servlet-mapping>
 
   <!-- User Auth Filter -->

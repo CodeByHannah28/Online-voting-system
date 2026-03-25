@@ -1,0 +1,65 @@
+<%
+    Object portalUserObj = session.getAttribute("user");
+    com.bascode.model.entity.User portalUser =
+        portalUserObj instanceof com.bascode.model.entity.User
+            ? (com.bascode.model.entity.User) portalUserObj
+            : null;
+    String portalContext = request.getContextPath();
+    String portalActive = activeSection != null ? activeSection : "";
+    boolean portalIsAdmin =
+        portalUser != null && com.bascode.model.enums.Role.ADMIN.equals(portalUser.getRole());
+    String portalName = portalUser != null
+        ? ((portalUser.getFirstName() != null ? portalUser.getFirstName() : "") + " " +
+           (portalUser.getLastName() != null ? portalUser.getLastName() : "")).trim()
+        : "Guest";
+    if (portalName.isEmpty()) {
+        portalName = "Guest";
+    }
+    String portalRole = portalUser != null && portalUser.getRole() != null
+        ? portalUser.getRole().name().replace('_', ' ')
+        : "User";
+    String portalInitial = "?";
+    if (portalUser != null && portalUser.getFirstName() != null && !portalUser.getFirstName().isBlank()) {
+        portalInitial = portalUser.getFirstName().substring(0, 1).toUpperCase();
+    }
+%>
+<header class="portal-topbar">
+    <div class="portal-topbar__inner">
+        <a class="portal-brand" href="<%= portalIsAdmin ? portalContext + "/admin/dashboard" : portalContext + "/voterDashboard.jsp" %>">
+            <span class="portal-brand__mark"><i class="fas fa-vote-yea"></i></span>
+            <span class="portal-brand__text">
+                <span class="portal-brand__eyebrow">Secure Ballot</span>
+                <span class="portal-brand__title">Online Voting System</span>
+            </span>
+        </a>
+
+        <nav class="portal-nav">
+            <% if (portalIsAdmin) { %>
+                <a class="portal-nav__link <%= "admin-dashboard".equals(portalActive) ? "is-active" : "" %>" href="<%= portalContext %>/admin/dashboard"><i class="fas fa-chart-line"></i> Overview</a>
+                <a class="portal-nav__link <%= "admin-voters".equals(portalActive) ? "is-active" : "" %>" href="<%= portalContext %>/admin/voters"><i class="fas fa-users"></i> Voters</a>
+                <a class="portal-nav__link <%= "admin-contesters".equals(portalActive) ? "is-active" : "" %>" href="<%= portalContext %>/admin/contesters"><i class="fas fa-user-tie"></i> Contesters</a>
+                <a class="portal-nav__link <%= "admin-monitor".equals(portalActive) ? "is-active" : "" %>" href="<%= portalContext %>/admin/monitor"><i class="fas fa-server"></i> Monitor</a>
+            <% } else { %>
+                <a class="portal-nav__link <%= "dashboard".equals(portalActive) ? "is-active" : "" %>" href="<%= portalContext %>/voterDashboard.jsp"><i class="fas fa-table-columns"></i> Dashboard</a>
+                <a class="portal-nav__link <%= "candidates".equals(portalActive) ? "is-active" : "" %>" href="<%= portalContext %>/voter/candidates"><i class="fas fa-users-viewfinder"></i> Candidates</a>
+                <a class="portal-nav__link <%= "vote".equals(portalActive) ? "is-active" : "" %>" href="<%= portalContext %>/voter/vote"><i class="fas fa-check-to-slot"></i> Vote</a>
+                <a class="portal-nav__link <%= "results".equals(portalActive) ? "is-active" : "" %>" href="<%= portalContext %>/voter/results"><i class="fas fa-chart-simple"></i> Results</a>
+                <a class="portal-nav__link <%= "contester".equals(portalActive) ? "is-active" : "" %>" href="<%= portalContext %>/voter/register-contester"><i class="fas fa-user-plus"></i> Contester</a>
+            <% } %>
+            <a class="portal-nav__link <%= "profile".equals(portalActive) ? "is-active" : "" %>" href="<%= portalContext %>/profile"><i class="fas fa-id-badge"></i> Profile</a>
+        </nav>
+
+        <div class="portal-user">
+            <div class="portal-user__summary">
+                <span class="portal-user__avatar"><%= portalInitial %></span>
+                <span class="portal-user__meta">
+                    <span class="portal-user__name"><%= portalName %></span>
+                    <span class="portal-user__role"><%= portalRole %></span>
+                </span>
+            </div>
+            <a class="portal-button portal-button--ghost" href="<%= portalContext %>/logout">
+                <i class="fas fa-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,37 @@
+<footer class="site-footer">
+    <div class="site-footer__inner">
+        <div>
+            <a class="site-brand" href="${pageContext.request.contextPath}/index.jsp">
+                <span class="site-brand__mark">
+                    <img src="${pageContext.request.contextPath}/Logo.jpeg" alt="Go Voter logo">
+                </span>
+                <span class="site-brand__text">
+                    <span class="site-brand__eyebrow" style="color: rgba(248,250,252,0.6);">Trusted digital voting</span>
+                    <span class="site-brand__title" style="color: white;">Go Voter</span>
+                </span>
+            </a>
+            <p style="margin: 1rem 0 0; max-width: 25rem; line-height: 1.8;">
+                A cleaner, more transparent election experience for modern communities, schools, and organizations.
+            </p>
+        </div>
+        <div>
+            <h4>Explore</h4>
+            <ul>
+                <li><a href="${pageContext.request.contextPath}/index.jsp">Home</a></li>
+                <li><a href="${pageContext.request.contextPath}/about.jsp">About</a></li>
+                <li><a href="${pageContext.request.contextPath}/contact.jsp">Contact</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4>Access</h4>
+            <ul>
+                <li><a href="${pageContext.request.contextPath}/login.jsp">Login</a></li>
+                <li><a href="${pageContext.request.contextPath}/register.jsp">Register</a></li>
+                <li><a href="${pageContext.request.contextPath}/forgot-password.jsp">Reset password</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="site-footer__bottom">
+        &copy; 2026 Go Voter. All rights reserved.
+    </div>
+</footer>

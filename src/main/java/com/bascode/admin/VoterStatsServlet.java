@@ -26,9 +26,9 @@ public class VoterStatsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         EntityManagerFactory factory = emf();
         if (factory == null) {
-            req.setAttribute("contesters", Collections.emptyList());
-            req.setAttribute("voteCounts", Collections.emptyMap());
-            req.getRequestDispatcher("/admin/voter-stats.jsp").forward(req, resp);
+            forwardResultsPage(req, resp, Collections.emptyList(), Collections.emptyMap(),
+                    Collections.emptyList(), 0L,
+                    "We couldn't load voting analytics right now. Please try again shortly.");
             return;
         }
 
@@ -39,7 +39,7 @@ public class VoterStatsServlet extends HttpServlet {
             List<Contester> contesters = cQ.getResultList();
 
             // Position totals
-            List<Object[]> positionTotals = em.createQuery("SELECT v.contester.position, COUNT(v) FROM Vote v GROUP BY v.contester.position ORDER BY COUNT(v) DESC", Object[].class).getResultList();
+            List<Object[]> positionTotals = em.createQuery("SELECT v.position, COUNT(v) FROM Vote v GROUP BY v.position ORDER BY COUNT(v) DESC", Object[].class).getResultList();
 
             Map<Long, Long> counts = new HashMap<>();
             TypedQuery<Object[]> vQ = em.createQuery("SELECT v.contester.id, COUNT(v) FROM Vote v GROUP BY v.contester.id", Object[].class);
@@ -52,13 +52,25 @@ public class VoterStatsServlet extends HttpServlet {
 
             Long totalVotes = em.createQuery("SELECT COUNT(v) FROM Vote v", Long.class).getSingleResult();
 
-            req.setAttribute("contesters", contesters);
-            req.setAttribute("voteCounts", counts);
-            req.setAttribute("positionTotals", positionTotals);
-            req.setAttribute("totalVotes", totalVotes);
-            req.getRequestDispatcher("/admin/voter-stats.jsp").forward(req, resp);
+            forwardResultsPage(req, resp, contesters, counts, positionTotals, totalVotes, null);
+        } catch (RuntimeException ex) {
+            getServletContext().log("[VoterStatsServlet] Unable to load voting analytics.", ex);
+            forwardResultsPage(req, resp, Collections.emptyList(), Collections.emptyMap(),
+                    Collections.emptyList(), 0L,
+                    "We couldn't load voting analytics right now. Please refresh or try again shortly.");
         } finally {
             em.close();
         }
+    }
+
+    private void forwardResultsPage(HttpServletRequest req, HttpServletResponse resp, List<Contester> contesters,
+                                    Map<Long, Long> voteCounts, List<Object[]> positionTotals, Long totalVotes,
+                                    String pageError) throws ServletException, IOException {
+        req.setAttribute("contesters", contesters != null ? contesters : Collections.emptyList());
+        req.setAttribute("voteCounts", voteCounts != null ? voteCounts : Collections.emptyMap());
+        req.setAttribute("positionTotals", positionTotals != null ? positionTotals : Collections.emptyList());
+        req.setAttribute("totalVotes", totalVotes != null ? totalVotes : 0L);
+        req.setAttribute("pageError", pageError);
+        req.getRequestDispatcher("/admin/voter-stats.jsp").forward(req, resp);
     }
 }

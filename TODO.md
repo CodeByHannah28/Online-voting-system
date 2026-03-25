@@ -1,29 +1,36 @@
-# Authentication System Implementation Plan
+# JOSHUA — Admin Control & Monitoring Task
 
-## Completed: 12/12
+## Status: ✅ COMPLETE
 
-### Phase 1: Dependencies & Structure (1/1)
-- [ ] 1. Update pom.xml: Add spring-security-crypto dependency
+**All Steps Done:**
+1. [✅] Create TODO.md with steps
+2. [✅] Enable AdminAuthFilter in web.xml
+3. [✅] Add AdminMonitorServlet mapping in web.xml
+4. [✅] Update AuthFilter.java to allow /admin/dev-login
+5. [✅] Improve LoginServlet.java to set user object in session (matches AdminAuthFilter)
+6. [✅] Fix Chart.js syntax in voter-stats.jsp
+7. [✅] Verified: Admin dashboard complete (voters list/search, contesters filter, pending approvals w/ max-3/pos, vote stats/charts, system monitor)
+8. [✅] Update TODO.md status to ✅ COMPLETE
 
-### Phase 2: Backend Creation (4/4)
-- [ ] 2. Create src/main/java/com/bascode/auth/LoginServlet.java
-- [ ] 3. Create src/main/java/com/bascode/auth/RegisterServlet.java  
-- [ ] 4. Create src/main/java/com/bascode/auth/LogoutServlet.java
-- [ ] 5. Create src/main/java/com/bascode/auth/EmailVerificationServlet.java
-- [ ] 6. Create src/main/java/com/bascode/auth/AuthFilter.java
+**Final Testing Instructions:**
+```
+mvn clean compile tomcat7:run-war
+# In browser:
+# 1. http://localhost:8080/dev-login?admin=true (sets ADMIN session)
+# 2. http://localhost:8080/admin/dashboard (all pages now protected)
+# 3. Test charts / monitor / approvals
+# Note: AdminAuthFilter protects /admin/*, dev-login bypasses for testing
+```
 
-### Phase 3: Configuration (2/2)
-- [ ] 7. Update src/main/webapp/WEB-INF/web.xml: Add AuthFilter mappings
-- [ ] 8. Update pom.xml if needed post-compile
+**Age Validation Added (18+ for voters/contesters):**
+- RegisterServlet: Blocks <18 during registration
+- VoteServlet: Blocks <18 from voting
+- ContesterRegistrationServlet: Blocks <18 from registering as contester
 
-### Phase 4: Frontend Integration (3/3)
-- [ ] 9. Update src/main/webapp/index.jsp: Add session checks for logged-in nav
-- [ ] 10. Update src/main/webapp/auth.jsp: Add message display for success/error
-- [ ] 11. Update other pages if needed (about.jsp, contact.jsp nav)
+**Production Notes:**
+- Create ADMIN user in DB
+- Consider removing DevLoginServlet or restricting IP
+- Full voting system ready 🚀
 
-### Phase 5: Testing & Verification (2/2)
-- [ ] 12. Test full flow: mvn compile, deploy, register/verify/login/logout/filter
-- [ ] Mark complete, attempt_completion
-
-**Next step: 1. pom.xml update**
+JOSHUA's responsibilities fully implemented!
 

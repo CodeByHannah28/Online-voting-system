@@ -2,54 +2,40 @@ package com.bascode.auth;
 
 import com.bascode.model.entity.User;
 import com.bascode.model.enums.Role;
+import com.bascode.util.AgeEligibility;
 import com.bascode.util.JPAUtil;
+import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.mindrot.jbcrypt.BCrypt;
-
-import jakarta.mail.Authenticator;
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
-import jakarta.mail.PasswordAuthentication;
-import jakarta.mail.Session;
-import jakarta.mail.Transport;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-import java.util.Random;
 
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/register"})
 public class RegisterServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String firstName = req.getParameter("firstName");
-        String lastName = req.getParameter("lastName");
-        String email = req.getParameter("email");
-        String birthYearStr = req.getParameter("birthYear");
-        String state = req.getParameter("state");
-        String country = req.getParameter("country");
+        String firstName = trimToNull(req.getParameter("firstName"));
+        String lastName = trimToNull(req.getParameter("lastName"));
+        String email = trimToNull(req.getParameter("email"));
+        String birthYearStr = trimToNull(req.getParameter("birthYear"));
+        String state = trimToNull(req.getParameter("state"));
+        String country = trimToNull(req.getParameter("country"));
         String password = req.getParameter("password");
         String confirmPassword = req.getParameter("confirmPassword");
-        String roleParam = req.getParameter("role");
+        Role role = AdminEmailSupport.resolveRole(email, Role.VOTER);
 
-        // Validation
-        if (firstName == null || lastName == null || email == null || birthYearStr == null || state == null || country == null
-                || firstName.trim().isEmpty() || lastName.trim().isEmpty() || email.trim().isEmpty()
-                || birthYearStr.trim().isEmpty() || state.trim().isEmpty() || country.trim().isEmpty()) {
+        if (firstName == null || lastName == null || email == null || birthYearStr == null ||
+                state == null || country == null) {
             req.setAttribute("error", "All fields are required.");
             req.getRequestDispatcher("/register.jsp").forward(req, resp);
             return;
         }
 
-        if (!password.equals(confirmPassword)) {
+        if (password == null || confirmPassword == null || !password.equals(confirmPassword)) {
             req.setAttribute("error", "Passwords do not match.");
             req.getRequestDispatcher("/register.jsp").forward(req, resp);
             return;
@@ -64,39 +50,30 @@ public class RegisterServlet extends HttpServlet {
         int birthYear;
         try {
             birthYear = Integer.parseInt(birthYearStr);
-        } catch (NumberFormatException nfe) {
+            if (AgeEligibility.requiresAdultStatus(role) && !AgeEligibility.isAtLeast18(birthYear)) {
+                req.setAttribute("error", AgeEligibility.registrationRefusalMessage(role));
+                req.getRequestDispatcher("/register.jsp").forward(req, resp);
+                return;
+            }
+        } catch (NumberFormatException ex) {
             req.setAttribute("error", "Invalid birth year selected.");
             req.getRequestDispatcher("/register.jsp").forward(req, resp);
             return;
         }
 
-        // Map role parameter to enum; default to VOTER if not provided or unrecognized
-        Role role = Role.VOTER;
-        if (roleParam != null && !roleParam.trim().isEmpty()) {
-            String rp = roleParam.trim().toUpperCase();
-            if (rp.equals("CONTESTER") || rp.equals("CONTESTANT")) {
-                role = Role.CONTESTER;
-            } else if (rp.equals("ADMIN")) {
-                role = Role.ADMIN;
-            } else {
-                role = Role.VOTER;
-            }
-        }
-
         EntityManager em = JPAUtil.getEntityManager();
         try {
-            // Check if email exists
             long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE u.email = :email", Long.class)
                     .setParameter("email", email)
                     .getSingleResult();
-
             if (count > 0) {
                 req.setAttribute("error", "Email already registered.");
                 req.getRequestDispatcher("/register.jsp").forward(req, resp);
                 return;
             }
 
-            // Create user
+            String verificationCode = VerificationSupport.generateVerificationCode();
+
             User user = new User();
             user.setFirstName(firstName);
             user.setLastName(lastName);
@@ -104,25 +81,51 @@ public class RegisterServlet extends HttpServlet {
             user.setBirthYear(birthYear);
             user.setState(state);
             user.setCountry(country);
-            user.setPasswordHash(BCrypt.hashpw(password, BCrypt.gensalt()));
+            user.setPasswordHash(AuthUtil.hashPassword(password));
             user.setRole(role);
-            user.setEmailVerified(true);
+            user.setEmailVerified(false);
+            user.setVerificationCode(verificationCode);
 
             em.getTransaction().begin();
             em.persist(user);
             em.getTransaction().commit();
 
-            // Redirect immediately to login with success message
-            req.setAttribute("message", "Registration successful! You can now log in.");
-            req.getRequestDispatcher("/login.jsp").forward(req, resp);
+            VerificationSupport.rememberUnverifiedEmail(req, user.getEmail());
+            try {
+                VerificationSupport.sendVerificationEmail(getServletContext(), user, verificationCode);
+                String message = "Registration successful. We sent a verification code to " + user.getEmail() + ".";
+                if (Role.ADMIN.equals(role)) {
+                    message += " This account has been assigned administrator access.";
+                }
+                req.setAttribute("message", message);
+            } catch (MessagingException mex) {
+                getServletContext().log("Registration email delivery failed for " + user.getEmail(), mex);
+                req.setAttribute("error", VerificationSupport.deliveryErrorMessage(
+                        "Registration succeeded, but we could not send your verification code. Please use the resend option.",
+                        mex));
+            }
 
-        } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
-            getServletContext().log("Registration failed", e);
+            req.getRequestDispatcher("/verify-code.jsp").forward(req, resp);
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            getServletContext().log("Registration failed", ex);
             req.setAttribute("error", "An error occurred during registration. Please try again later.");
             req.getRequestDispatcher("/register.jsp").forward(req, resp);
         } finally {
-            if (em != null && em.isOpen()) em.close();
+            if (em.isOpen()) {
+                em.close();
+            }
         }
     }
+
+    private static String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
 }

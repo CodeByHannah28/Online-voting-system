@@ -16,7 +16,6 @@ public class EmailVerificationServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String code = req.getParameter("code");
-        String email = req.getParameter("email");
 
         if (code == null || code.trim().isEmpty()) {
             req.setAttribute("message", "Invalid verification link.");
@@ -36,6 +35,7 @@ EntityManager em = JPAUtil.getEntityManager();
             em.merge(user);
             em.getTransaction().commit();
 
+            VerificationSupport.clearRememberedEmail(req);
             req.setAttribute("message", "Email verified successfully! You can now login.");
             req.getRequestDispatcher("/verify.jsp").forward(req, resp);
 

@@ -14,6 +14,7 @@ buildNumber.properties
 
 # Log files
 *.log
+src/main/resources/database.properties
 
 # Package Files
 *.jar

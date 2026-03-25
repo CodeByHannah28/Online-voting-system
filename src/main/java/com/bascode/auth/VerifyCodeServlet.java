@@ -37,6 +37,7 @@ public class VerifyCodeServlet extends HttpServlet {
             em.merge(user);
             em.getTransaction().commit();
 
+            VerificationSupport.clearRememberedEmail(req);
             req.setAttribute("message", "Email verified. You can now login.");
             req.getRequestDispatcher("/login.jsp").forward(req, resp);
         } catch (NoResultException nre) {

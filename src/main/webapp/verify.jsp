@@ -1,82 +1,86 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%
+    String code = request.getParameter("code");
+    String message = (String) request.getAttribute("message");
+    String error = (String) request.getAttribute("error");
+    if (code != null && !code.trim().isEmpty() && message == null && error == null) {
+        response.sendRedirect(request.getContextPath() + "/verify?code=" + java.net.URLEncoder.encode(code, "UTF-8"));
+        return;
+    }
+    String pageTitle = "Verify Email";
+    String authViewName = "";
+    boolean hasCode = code != null && !code.trim().isEmpty();
+%>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Verify Email | Go Voter</title>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:Segoe UI, Arial, sans-serif; }
-body { 
-    height:100vh; 
-    display:flex; 
-    align-items:center; 
-    justify-content:center; 
-    background:linear-gradient(135deg, #1e40af 0%, #2563eb 100%); 
-    color:white; 
-}
-.container { 
-    background:white; 
-    color:#1e3a8a; 
-    padding:60px 40px; 
-    border-radius:20px; 
-    box-shadow:0 25px 70px rgba(0,0,0,0.3); 
-    text-align:center; 
-    max-width:500px; 
-}
-.container h1 { font-size:32px; margin-bottom:20px; color:#1e40af; }
-.container p { font-size:16px; margin-bottom:20px; line-height:1.6; }
-.success { color:#22c55e; }
-.error { color:#dc2626; }
-.btn { 
-    display:inline-block; 
-    padding:12px 32px; 
-    background:#2563eb; 
-    color:white; 
-    text-decoration:none; 
-    border-radius:25px; 
-    font-weight:600; 
-    transition:all 0.3s; 
-}
-.btn:hover { background:#1e40af; transform:translateY(-2px); }
-.loading { color:#6b7280; }
-</style>
+<%@ include file="/WEB-INF/views/fragment/site-head.jspf" %>
 </head>
-<body>
-<div class="container">
-<%
-String message = (String) request.getAttribute("message");
-String error = (String) request.getAttribute("error");
-String code = request.getParameter("code");
+<body class="auth-body">
+<%@ include file="/WEB-INF/views/fragment/auth-header.jspf" %>
 
-if (code == null || code.trim().isEmpty()) {
-%>
-    <h1>Invalid Verification Link</h1>
-    <p class="error">No verification code provided.</p>
-    <a href="auth.jsp" class="btn">Back to Auth</a>
-<%
-} else if (message != null) {
-%>
-    <h1>✅ Verified Successfully!</h1>
-    <p class="success"><%=message%></p>
-    <a href="auth.jsp?mode=login" class="btn">Login Now</a>
-<%
-} else if (error != null) {
-%>
-    <h1>❌ Verification Failed</h1>
-    <p class="error"><%=error%></p>
-    <a href="auth.jsp?mode=signup" class="btn">Register Again</a>
-<%
-} else {
-%>
-    <h1>Verifying Email...</h1>
-    <p class="loading">Please wait while we verify your email address.</p>
-    <jsp:include page="/verify">
-        <jsp:param name="code" value="<%=code%>"/>
-    </jsp:include>
-<%
-}
-%>
-</div>
+<main class="auth-shell">
+    <div class="auth-stage">
+        <section class="auth-aside" style="background-image: url('${pageContext.request.contextPath}/Home-background.jpeg');">
+            <div class="auth-aside__content">
+                <div>
+                    <div class="auth-aside__eyebrow"><i class="fas fa-envelope-circle-check"></i> Email confirmation</div>
+                    <h1 class="auth-aside__title">Finalize your verification status.</h1>
+                    <p class="auth-aside__text">
+                        Verification links sent by email are resolved through this screen so users get a clear success or failure state.
+                    </p>
+                </div>
+                <div class="auth-points">
+                    <div class="auth-point">
+                        <i class="fas fa-bolt"></i>
+                        <div>
+                            <strong>Direct link support</strong>
+                            <span>Verification links can bring users straight into this flow from their email inbox.</span>
+                        </div>
+                    </div>
+                    <div class="auth-point">
+                        <i class="fas fa-arrow-right-to-bracket"></i>
+                        <div>
+                            <strong>Clear next steps</strong>
+                            <span>After verification, users can move straight back to login or request another verification path.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="auth-card">
+            <div class="auth-card__eyebrow"><i class="fas fa-circle-check"></i> Verification result</div>
+
+            <% if (!hasCode && message == null && error == null) { %>
+                <h2 class="auth-card__title">Invalid verification link.</h2>
+                <p class="auth-card__text">No verification code was provided with this request.</p>
+                <div class="auth-form" style="margin-top: 1.6rem;">
+                    <a class="site-button site-button--primary" href="auth.jsp">Back to authentication</a>
+                </div>
+            <% } else if (message != null) { %>
+                <h2 class="auth-card__title">Email verified successfully.</h2>
+                <p class="auth-card__text">Your account is ready to sign in.</p>
+                <div class="auth-alert auth-alert--success"><%= message %></div>
+                <div class="auth-form" style="margin-top: 1.3rem;">
+                    <a class="site-button site-button--primary" href="login.jsp">Login now</a>
+                </div>
+            <% } else if (error != null) { %>
+                <h2 class="auth-card__title">Verification failed.</h2>
+                <p class="auth-card__text">The verification link may be invalid or expired.</p>
+                <div class="auth-alert auth-alert--error"><%= error %></div>
+                <div class="auth-form" style="margin-top: 1.3rem;">
+                    <a class="site-button site-button--primary" href="resend-verification.jsp">Resend verification</a>
+                    <a class="site-button site-button--ghost" href="auth.jsp?mode=signup">Back to register</a>
+                </div>
+            <% } else { %>
+                <h2 class="auth-card__title">Verifying your email...</h2>
+                <p class="auth-card__text">Please wait while your verification link is processed.</p>
+                <div class="auth-alert auth-alert--success">Redirecting to the verification handler now.</div>
+            <% } %>
+        </section>
+    </div>
+</main>
+
 </body>
 </html>
-

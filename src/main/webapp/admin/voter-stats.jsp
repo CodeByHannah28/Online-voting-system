@@ -1,141 +1,329 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"
+    import="java.util.ArrayList,java.util.Collections,java.util.Comparator,java.util.List,java.util.Map,com.bascode.model.entity.Contester"%>
+<%!
+    private String h(Object value) {
+        if (value == null) {
+            return "";
+        }
+        return String.valueOf(value)
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
+
+    private String js(Object value) {
+        if (value == null) {
+            return "";
+        }
+        return String.valueOf(value)
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\r", "")
+                .replace("\n", "\\n");
+    }
+
+    private long toLong(Object value) {
+        return value instanceof Number ? ((Number) value).longValue() : 0L;
+    }
+
+    private String formatPositionLabel(Object value) {
+        if (value == null) {
+            return "Unknown position";
+        }
+
+        String raw = value.toString().trim();
+        if (raw.isEmpty()) {
+            return "Unknown position";
+        }
+
+        StringBuilder label = new StringBuilder();
+        for (String word : raw.split("_")) {
+            if (word == null || word.isBlank()) {
+                continue;
+            }
+            if (label.length() > 0) {
+                label.append(' ');
+            }
+            label.append(Character.toUpperCase(word.charAt(0)));
+            if (word.length() > 1) {
+                label.append(word.substring(1).toLowerCase());
+            }
+        }
+        return label.length() > 0 ? label.toString() : raw;
+    }
+
+    private String contesterName(Contester contester) {
+        if (contester == null || contester.getUser() == null) {
+            return "Unnamed contester";
+        }
+        String first = contester.getUser().getFirstName() != null ? contester.getUser().getFirstName().trim() : "";
+        String last = contester.getUser().getLastName() != null ? contester.getUser().getLastName().trim() : "";
+        String fullName = (first + " " + last).trim();
+        return fullName.isEmpty() ? "Unnamed contester" : fullName;
+    }
+
+    private long voteCount(Map<Long, Long> voteCounts, Long contesterId) {
+        if (voteCounts == null || contesterId == null) {
+            return 0L;
+        }
+        Long count = voteCounts.get(contesterId);
+        return count != null ? count : 0L;
+    }
+
+    private String voteShare(long totalVotes, long contesterVotes) {
+        if (totalVotes <= 0 || contesterVotes <= 0) {
+            return "&lt;1%";
+        }
+
+        long rounded = Math.round((contesterVotes * 100.0d) / totalVotes);
+        if (rounded <= 0) {
+            return "&lt;1%";
+        }
+        return rounded + "%";
+    }
+%>
+<%
+    String adminPageTitle = "Voting Results";
+    String activeAdminSection = "results";
+    String pageError = request.getAttribute("pageError") != null
+        ? request.getAttribute("pageError").toString()
+        : null;
+    @SuppressWarnings("unchecked")
+    List<Object[]> positionTotals = request.getAttribute("positionTotals") instanceof List<?>
+        ? (List<Object[]>) request.getAttribute("positionTotals")
+        : Collections.emptyList();
+    @SuppressWarnings("unchecked")
+    List<Contester> contesters = request.getAttribute("contesters") instanceof List<?>
+        ? (List<Contester>) request.getAttribute("contesters")
+        : Collections.emptyList();
+    @SuppressWarnings("unchecked")
+    Map<Long, Long> voteCounts = request.getAttribute("voteCounts") instanceof Map<?, ?>
+        ? (Map<Long, Long>) request.getAttribute("voteCounts")
+        : Collections.emptyMap();
+    long totalVotes = toLong(request.getAttribute("totalVotes"));
+
+    StringBuilder positionLabelsJs = new StringBuilder();
+    StringBuilder positionDataJs = new StringBuilder();
+    for (Object[] stat : positionTotals) {
+        if (positionLabelsJs.length() > 0) {
+            positionLabelsJs.append(", ");
+            positionDataJs.append(", ");
+        }
+        positionLabelsJs.append('"').append(js(formatPositionLabel(stat != null && stat.length > 0 ? stat[0] : null))).append('"');
+        positionDataJs.append(stat != null && stat.length > 1 ? toLong(stat[1]) : 0L);
+    }
+
+    List<Contester> topContesters = new ArrayList<>(contesters);
+    topContesters.sort(new Comparator<Contester>() {
+        @Override
+        public int compare(Contester left, Contester right) {
+            return Long.compare(voteCount(voteCounts, right.getId()), voteCount(voteCounts, left.getId()));
+        }
+    });
+    if (topContesters.size() > 5) {
+        topContesters = new ArrayList<>(topContesters.subList(0, 5));
+    }
+
+    StringBuilder topContestersDataJs = new StringBuilder();
+    for (Contester contester : topContesters) {
+        if (topContestersDataJs.length() > 0) {
+            topContestersDataJs.append(", ");
+        }
+        topContestersDataJs.append("{name:\"")
+                .append(js(contesterName(contester)))
+                .append("\",votes:")
+                .append(voteCount(voteCounts, contester.getId()))
+                .append('}');
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voting Results | Admin</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin-layout.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<%@ include file="/WEB-INF/views/fragment/admin-head.jspf" %>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<div class="sidebar">
-    <div class="sidebar-header">
-        <i class="fas fa-vote-yea"></i> Voting Admin
-    </div>
-    <ul class="nav-links">
-        <li><a href="${pageContext.request.contextPath}/admin/dashboard"><i class="fas fa-home"></i> Overview</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/voters"><i class="fas fa-users"></i> Voters</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/contesters"><i class="fas fa-user-tie"></i> Contesters</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/pending-approvals"><i class="fas fa-user-check"></i> Approvals</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/voter-stats" class="active"><i class="fas fa-chart-bar"></i> Voting Results</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/monitor"><i class="fas fa-server"></i> System Monitor</a></li>
-    </ul>
-</div>
+<%@ include file="/WEB-INF/views/fragment/admin-sidebar.jspf" %>
 
 <div class="main-content">
-    <div class="header">
-        <h1>Voting Results</h1>
-        <p style="color: var(--text-muted)">Live vote counts across positions and contesters. Total votes: <strong>${totalVotes}</strong></p>
-    </div>
-
-    <!-- Charts Section -->
-    <div class="stats-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 2rem;">
-        <div class="card">
-            <canvas id="positionChart"></canvas>
+    <div class="stack">
+        <div class="header">
+            <h1>Voting results</h1>
+            <p>Live vote counts across positions and contesters. Total selections recorded: <strong><%= totalVotes %></strong>.</p>
         </div>
-        <div class="card">
-            <canvas id="topContestersChart"></canvas>
+
+        <% if (pageError != null && !pageError.isBlank()) { %>
+            <div class="admin-alert admin-alert--warning"><strong>We hit a snag.</strong> <%= h(pageError) %></div>
+        <% } %>
+
+        <div class="chart-grid">
+            <div class="card">
+                <div class="card-title">Votes by position</div>
+                <% if (!positionTotals.isEmpty()) { %>
+                    <canvas id="positionChart"></canvas>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-chart-pie"></i>
+                        No vote distribution is available yet.
+                    </div>
+                <% } %>
+            </div>
+            <div class="card">
+                <div class="card-title">Top contesters</div>
+                <% if (!topContesters.isEmpty()) { %>
+                    <canvas id="topContestersChart"></canvas>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-chart-column"></i>
+                        Approved contesters will appear here when voting data is available.
+                    </div>
+                <% } %>
+            </div>
         </div>
-    </div>
 
-    <!-- Position Summary Table -->
-    <div class="header" style="margin-top: 2rem;">
-        <h2>Results by Position</h2>
-    </div>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Position</th>
-                    <th>Total Votes</th>
-                    <th>Vote %</th>
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach var="stat" items="${positionTotals}">
-                    <c:set var="votes" value="${stat[1]}" />
-                    <c:set var="percent" value="${totalVotes > 0 ? (votes * 100 / totalVotes) : 0}" />
-                    <tr>
-                        <td><strong>${stat[0]}</strong></td>
-                        <td>${votes}</td>
-                        <td>${percent}%</td>
-                    </tr>
-                </c:forEach>
-            </tbody>
-        </table>
-    </div>
+        <div class="header">
+            <h2>Results by position</h2>
+            <p>Each row shows how much of the total vote count belongs to that office.</p>
+        </div>
 
-    <!-- Contesters Table -->
-    <div class="header" style="margin-top: 3rem;">
-        <h2>Contesters Vote Details</h2>
-    </div>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Votes</th>
-                    <th>%</th>
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach var="c" items="${contesters}">
-                    <c:set var="cVotes" value="${voteCounts[c.id] == null ? 0 : voteCounts[c.id]}" />
-                    <c:set var="cPercent" value="${totalVotes > 0 ? (cVotes * 100 / totalVotes) : 0}" />
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
-                        <td>#${c.id}</td>
-                        <td><strong>${c.user.firstName} ${c.user.lastName}</strong></td>
-                        <td>${c.position}</td>
-                        <td><span class="badge badge-approved">${cVotes}</span></td>
-                        <td>${cPercent > 0 ? cPercent : '<1'}%</td>
+                        <th>Position</th>
+                        <th>Total Votes</th>
+                        <th>Vote %</th>
                     </tr>
-                </c:forEach>
-                <c:if test="${empty contesters}">
+                </thead>
+                <tbody>
+                    <% if (positionTotals.isEmpty()) { %>
+                        <tr>
+                            <td colspan="3">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    No votes have been recorded by position yet.
+                                </div>
+                            </td>
+                        </tr>
+                    <% } else {
+                        for (Object[] stat : positionTotals) {
+                            long votes = stat != null && stat.length > 1 ? toLong(stat[1]) : 0L;
+                            long percent = totalVotes > 0 ? Math.round((votes * 100.0d) / totalVotes) : 0L;
+                    %>
+                        <tr>
+                            <td><strong><%= h(formatPositionLabel(stat != null && stat.length > 0 ? stat[0] : null)) %></strong></td>
+                            <td><%= votes %></td>
+                            <td><%= percent %>%</td>
+                        </tr>
+                    <%  }
+                       } %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="header">
+            <h2>Contester vote details</h2>
+            <p>Compare each approved contester's raw vote total and share of the election.</p>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
-                        <td colspan="5" style="text-align: center; color: var(--text-muted)">No approved contesters.</td>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Votes</th>
+                        <th>%</th>
                     </tr>
-                </c:if>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <% if (contesters.isEmpty()) { %>
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    No approved contesters are available for vote analysis yet.
+                                </div>
+                            </td>
+                        </tr>
+                    <% } else {
+                        for (Contester contester : contesters) {
+                            long contesterVotes = voteCount(voteCounts, contester.getId());
+                    %>
+                        <tr>
+                            <td>#<%= contester.getId() != null ? contester.getId() : 0 %></td>
+                            <td><strong><%= h(contesterName(contester)) %></strong></td>
+                            <td><%= h(formatPositionLabel(contester.getPosition())) %></td>
+                            <td><span class="badge badge-approved"><%= contesterVotes %></span></td>
+                            <td><%= voteShare(totalVotes, contesterVotes) %></td>
+                        </tr>
+                    <%  }
+                       } %>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
-    // Position Chart
-    <c:if test="${not empty positionTotals}">
+    <% if (!positionTotals.isEmpty()) { %>
+    const positionLabels = [<%= positionLabelsJs %>];
+    const positionData = [<%= positionDataJs %>];
     const ctxPos = document.getElementById('positionChart').getContext('2d');
     new Chart(ctxPos, {
         type: 'doughnut',
         data: {
-            labels: [<c:forEach var="stat" items="${positionTotals}" varStatus="status">[${status.index > 0 ? ',' : ''} "${stat[0]}"]</c:forEach>],
-            datasets: [{ data: [<c:forEach var="stat" items="${positionTotals}" varStatus="status">[${status.index > 0 ? ',' : ''} ${stat[1]}]</c:forEach>], backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'] }]
+            labels: positionLabels,
+            datasets: [{
+                data: positionData,
+                backgroundColor: ['#1d4ed8', '#0f766e', '#d97706', '#dc2626', '#475569']
+            }]
         },
-        options: { responsive: true, plugins: { title: { display: true, text: 'Votes by Position' } } }
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Votes by Position'
+                }
+            }
+        }
     });
-    </c:if>
+    <% } %>
 
-    // Top Contesters (top 5 by votes)
-    <c:if test="${not empty contesters}">
-    const topContesters = [<c:forEach var="c" items="${contesters}" varStatus="status">
-        {name: '${c.user.firstName} ${c.user.lastName}', votes: ${voteCounts[c.id] == null ? 0 : voteCounts[c.id]}<c:if test="${!status.last}">,</c:if>}
-    </c:forEach>];
-    topContesters.sort((a,b) => b.votes - a.votes).slice(0,5);
+    <% if (!topContesters.isEmpty()) { %>
+    const topContestersData = [<%= topContestersDataJs %>];
     const ctxTop = document.getElementById('topContestersChart').getContext('2d');
     new Chart(ctxTop, {
         type: 'bar',
         data: {
-            labels: topContesters.map(c => c.name),
-            datasets: [{ label: 'Votes', data: topContesters.map(c => c.votes), backgroundColor: '#3b82f6' }]
+            labels: topContestersData.map(contester => contester.name),
+            datasets: [{
+                label: 'Votes',
+                data: topContestersData.map(contester => contester.votes),
+                backgroundColor: '#1d4ed8'
+            }]
         },
-        options: { responsive: true, plugins: { title: { display: true, text: 'Top 5 Contesters' } }, scales: { y: { beginAtZero: true } } }
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Top 5 Contesters'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
     });
-    </c:if>
+    <% } %>
 </script>
 
 </body>

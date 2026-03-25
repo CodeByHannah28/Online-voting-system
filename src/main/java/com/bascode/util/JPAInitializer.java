@@ -17,7 +17,7 @@ public class JPAInitializer implements ServletContextListener {
             // Try to initialize the persistence unit. If this fails (missing DB, wrong
             // credentials, etc.) we catch the exception and allow the webapp to start
             // so other non-database parts can be used for development/debugging.
-            emf = Persistence.createEntityManagerFactory("VotingPU");
+            emf = Persistence.createEntityManagerFactory("VotingPU", RuntimeConfigSupport.jpaOverrides());
             sce.getServletContext().setAttribute("emf", emf);
         } catch (Exception e) {
             // Log the problem on the servlet context and continue without EMF.

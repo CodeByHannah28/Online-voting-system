@@ -14,7 +14,7 @@ public class JPAUtil {
         if (emf == null) {
             synchronized (JPAUtil.class) {
                 if (emf == null) {
-                    emf = Persistence.createEntityManagerFactory("VotingPU");
+                    emf = Persistence.createEntityManagerFactory("VotingPU", RuntimeConfigSupport.jpaOverrides());
                 }
             }
         }
